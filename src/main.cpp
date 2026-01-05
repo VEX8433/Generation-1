@@ -15,7 +15,7 @@ pros::Motor right(-10, pros::v5::MotorGears::blue);
 
 pros::Imu inertial(0);
 pros::Distance distance(0);
-pros::Rotation tracking(0);//ewofjiwoefjw
+pros::Rotation tracking(0);
 
 pros::adi::DigitalOut bot('A');
 pros::adi::DigitalOut top('B');
@@ -24,7 +24,7 @@ pros::adi::DigitalOut tongue('D');
 pros::adi::DigitalOut backDoinker('E');
 pros::adi::DigitalOut doublePark('F');
 
-Chassis chassis(LEFT_FRONT, RIGHT_FRONT, LEFT_MIDDLE, RIGHT_MIDDLE, LEFT_BACK, RIGHT_BACK, inertial);
+Chassis chassis(LEFT_FRONT, RIGHT_FRONT, LEFT_MIDDLE, RIGHT_MIDDLE, LEFT_BACK, RIGHT_BACK, inertial, tracking);
 Intake intake(left, right, bot, top, doublePark, distance);
 
 /**
