@@ -14,7 +14,7 @@ pros::Motor left(1, pros::v5::MotorGears::blue);
 pros::Motor right(-10, pros::v5::MotorGears::blue);
 
 pros::Imu inertial(0);
-pros::Distance distance(0);
+pros::Distance distance(8);
 pros::Rotation tracking(0);
 
 pros::adi::DigitalOut bot('A');
@@ -82,9 +82,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	intake.brake();
 	chassis.brake();
-	inertial.reset();
 
 	bool doinkerToggle = false;
 	bool tongueToggle = false;
@@ -99,7 +97,34 @@ void opcontrol() {
 
 		// function in intake class to spin intake based on controller button inputs
 		intake.telOP(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1), master.get_digital(pros::E_CONTROLLER_DIGITAL_L1), 
-		master.get_digital(pros::E_CONTROLLER_DIGITAL_R2), master.get_digital(pros::E_CONTROLLER_DIGITAL_X));
+		master.get_digital(pros::E_CONTROLLER_DIGITAL_X), master.get_digital(pros::E_CONTROLLER_DIGITAL_R2), master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN), master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT));
+
+		// if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+		// 	left.move_velocity(-200);
+		// 	right.move_velocity(-200);
+		// }
+		// else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+		// 	left.move_velocity(200);
+		// 	right.move_velocity(200);
+		// 	bot.set_value(true);
+		// 	top.set_value(false);
+		// }
+		// else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+		// 	bot.set_value(false);
+		// 	top.set_value(false);
+		// 	left.move_velocity(200);
+		// 	right.move_velocity(200);
+		// }
+		// else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
+		// 	left.move_velocity(200);
+		// 	right.move_velocity(200);
+		// 	bot.set_value(true);
+		// 	top.set_value(true);
+		// }
+		// else{
+		// 	left.move_velocity(0);
+		// 	right.move_velocity(0);
+		// }
 
 		if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
             tongueToggle = !tongueToggle;
@@ -117,5 +142,6 @@ void opcontrol() {
             doubleParkToggle = !doubleParkToggle;
             doublePark.set_value(doubleParkToggle);
         }
+		pros::delay(20);
 	}
 }
