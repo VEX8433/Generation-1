@@ -1,8 +1,7 @@
 #include "main.h"
 #include "pros/rtos.hpp"
 #include "SubSystems/Intake.hpp"
-// #include "SubSystems/auton_routes.hpp"
-
+#include "SubSystems/auton_routes.hpp"
 #include "lemlib/api.hpp"
 #include "pros/abstract_motor.hpp"
 // #include <future>
