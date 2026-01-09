@@ -1,7 +1,6 @@
 #include "main.h"
 #include "pros/rtos.hpp"
 #include "SubSystems/Intake.hpp"
-#include "SubSystems/auton_routes.hpp"
 #include "lemlib/api.hpp"
 #include "pros/abstract_motor.hpp"
 // #include <future>
@@ -151,12 +150,14 @@ void leftside(){
 	chassis.moveToPoint(-35.5, 17, 1000, {.minSpeed = 60}, false);
 	chassis.moveToPoint(-35.5, 40, 1000, {.forwards=false,.minSpeed = 200}, false);
 }
+
 void skills(){
 	intake.telOP(true, false, false, false, false, false);
-
-		/* CODEGEN EXPORT: LemLib */
+	// chassis.setPose(0, 0, 0);
 
 	chassis.setPose(-49.920000, 15.120000, 85.236000);
+
+	
 
 	chassis.turnToHeading(90.0, 503);
 	chassis.moveToPoint(-36.24, 15.12, 1245);
@@ -166,9 +167,8 @@ void skills(){
 	pros::delay(50);
 	chassis.turnToHeading(312.633752, 1192);
 	chassis.moveToPoint(-7.2, 11.76, 1478, {.forwards = false});
-	chassis.waitUntil(18.35462);
+	pros::delay(1000);
 	middle_goal_score(true);
-	chassis.waitUntilDone();
 	
 	
 	// pros::delay(1000);
@@ -215,13 +215,12 @@ void skills(){
 	chassis.moveToPoint(41.52, 70.52, 1413); //node 13
 	pros::delay(50);
 	chassis.turnToHeading(177.207298, 1116);
-	chassis.moveToPoint(42.0, 52.5, 1573); // node 14
+	chassis.moveToPoint(42.0, 53, 1573); // node 14
 	pros::delay(50);
 	chassis.turnToHeading(90.855097, 1120);
 	
-	chassis.moveToPoint(25.92, 52.5, 1332, {.forwards = false}); //node 15
+	chassis.moveToPoint(23, 53, 1000, {.forwards = false}, false); //node 15
 	long_goal_score(true);
-	chassis.waitUntilDone();
 	pros::delay(2500);
 	chassis.waitUntil(11.940754);
 
@@ -229,7 +228,7 @@ void skills(){
 	//initial match, top left score
 	
 	chassis.turnToHeading(90, 461); //prev89
-	chassis.moveToPoint(47.76, 52.5, 1518); //prey56 //node 15?? ///current 48
+	chassis.moveToPoint(47.76, 53, 1518); //prey56 //node 16?? ///current 48
 	chassis.waitUntil(16.507699);
 
 
@@ -237,40 +236,43 @@ void skills(){
 	matchload_activate(true);
 	chassis.waitUntilDone();
 	pros::delay(500);
-	chassis.turnToHeading(90, 461);
-	chassis.moveToPoint(65.52, 54, 3389, {.maxSpeed = 50}); //prev 5 //node 17
+	chassis.turnToHeading(88, 461);
+	chassis.moveToPoint(65.52, 53, 3389, {.maxSpeed = 50}); //prev 5 //node 17
 	// pros::delay(2000);
 	chassis.turnToHeading(90.0, 461);
-	chassis.moveToPoint(25.92, 52.5, 4912, {.forwards = false}); //node 18 //scoring on long goal
+	chassis.moveToPoint(23, 52.5, 1500, {.forwards = false}, false); //node 18 //scoring on long goal
 	// chassis.waitUntil(32.81013);
+//__________above no change is good
 
-
-	//top left 2nd matchload score
+	//top left 2nd matchload score		
 	matchload_activate(false);
-	chassis.waitUntilDone();
 
 	long_goal_score(true);
 	pros::delay(2500);
-	chassis.moveToPoint(48.72, 52.5, 1539);
+	chassis.moveToPoint(46.72, 53, 1539); //node 19
 
 	chassis.turnToHeading(192.528808, 1204);
-	chassis.moveToPoint(30.48, -26.16, 2975);
-	pros::delay(50);
-	chassis.turnToHeading(144.833564, 883);
-	chassis.moveToPoint(45.36, -47.28, 1634);
-	chassis.waitUntil(21.38118);
+	// chassis.moveToPoint(30.48, -26.16, 2975); //node 20
+	// pros::delay(50);
+	// chassis.turnToHeading(144.833564, 883);
+	chassis.moveToPoint(46.72, -51, 2000, {.maxSpeed = 200}); // ode 21
+	// chassis.waitUntil(21.38118);
 
 
 	//top right matchload
+	// chassis.waitUntilDone();
+	// pros::delay(500);
+	chassis.turnToHeading(90, 941, {}, false);
+	
+
 	long_goal_score(false);
 	matchload_activate(true);
-	chassis.waitUntilDone();
-	pros::delay(500);
-	chassis.turnToHeading(89.472475, 941);
-	chassis.moveToPoint(63.36, -45.8, 1397);
-	pros::delay(3000);
-	chassis.turnToHeading(89.255941, 461);
-	chassis.moveToPoint(44.88, -47.04, 3727, {.forwards = false}); //node 23
+	pros::delay(400);
+
+	chassis.moveToPoint(65, -50, 1397); //node 22
+	pros::delay(2000);
+	chassis.turnToHeading(90, 461);
+	chassis.moveToPoint(44.88, -53, 3727, {.forwards = false}); //node 23
 	chassis.waitUntil(13.722215);
 
 	
@@ -281,32 +283,29 @@ void skills(){
 	chassis.turnToHeading(222.909841, 1317);
 	chassis.moveToPoint(29.04, -64.08, 1561);//node 24
 	pros::delay(50);
-	chassis.turnToHeading(270.739259, 884);
-	chassis.moveToPoint(-45.36, -63.12, 2753);//node 35
+	chassis.turnToHeading(270, 884);
+	chassis.moveToPoint(-45.36, -63.12, 2753);//node 25
 	pros::delay(50);
 
 	//bottom right section
 	chassis.turnToHeading(354.897835, 1108);
-	chassis.moveToPoint(-46.56, -49.68, 1237); //node 26
+	chassis.moveToPoint(-46.56, -47, 1237); //node 26
 	pros::delay(50);
 	chassis.turnToHeading(270.0, 1112);
-	chassis.moveToPoint(-24.48, -49.68, 1525, {.forwards = false}); //node 27
-	chassis.waitUntil(13.893972);
+	chassis.moveToPoint(-23, -48, 1500, {.forwards = false}); //node 27
 
 	//bottom right score
 	long_goal_score(true);
 	pros::delay(2500);
-	chassis.waitUntilDone();
 	matchload_activate(true);
 	pros::delay(50);
-	chassis.moveToPoint(-61.44, -49.44, 3870, {.maxSpeed=50}); //nodem28 //bottom right matchload
+	chassis.moveToPoint(-61.44, -47, 3870, {.maxSpeed=50}); //nodem28 //bottom right matchload
 
-	
 	chassis.waitUntilDone();
 	pros::delay(50);
-	chassis.moveToPoint(-51.84, -49.44, 1941, {.forwards = false});//node 29
+	chassis.moveToPoint(-51.84, -47, 1941, {.forwards = false});//node 29
 	pros::delay(500);
-	chassis.moveToPoint(-24.96, -49.44, 1663, {.forwards = false}); //node 30
+	chassis.moveToPoint(-24.96, -47, 1663, {.forwards = false}); //node 30
 	chassis.waitUntil(20.017067);
 
 	//bottom right matchload score
@@ -316,7 +315,7 @@ void skills(){
 	chassis.waitUntilDone();
 	pros::delay(50);
 	chassis.turnToHeading(268.898294, 461);
-	chassis.moveToPoint(-37.44, -49.68, 1199); //node 31
+	chassis.moveToPoint(-37.44, -49, 1199); //node 31
 	pros::delay(50);
 	chassis.turnToHeading(319.820766, 906);
 	chassis.moveToPoint(-64.8, -17.28, 2006); //node 32
@@ -328,6 +327,43 @@ void skills(){
 
 
 }
+
+// void skills(){
+// 	chassis.setPose(0, 0, 0);
+
+// 	intake.telOP(true, false, false, false, false, false);
+// 	chassis.moveToPose( -15, 34, -21, 2000, {.minSpeed = 50}, false);
+// 	pros::delay(300);
+// 	chassis.turnToHeading(-131, 1000); // fix
+// 	chassis.moveToPose(7, 44, -131, 1600,{.forwards=false}, false);
+// 	intake.telOP(false, false, true, false, false, false);
+// 	pros::delay(400);
+// 	intake.telOP(true, false, false, false, false, false);
+// 	pros::delay(200);
+// 	chassis.moveToPoint(-34, 8, 2000);
+// 	chassis.turnToHeading(180, 1000);
+// 	tongue.set_value(true);
+// 	chassis.moveToPoint(-35, -20, 1600, {.maxSpeed = 40});
+// 	chassis.moveToPoint(-35.5, 30, 1000, {.forwards=false,.maxSpeed = 80}, false);
+// 	intake.telOP(false, true, false, false, false, false);
+// 	pros::delay(2000);
+// 	tongue.set_value(false);
+// 	chassis.moveToPoint(-35.5, 15, 1000, {.minSpeed = 60}, false);
+
+// 	chassis.turnToHeading(-50, 1000);
+// 	chassis.moveToPoint(-50, 30, 3000);
+// 	chassis.turnToHeading(0, 1000);
+// 	chassis.moveToPoint(-50, 95, 2000);
+// 	chassis.turnToHeading(90, 1000);
+// 	chassis.moveToPoint(-35.5, 95, 1000, {}, false);
+// 	chassis.turnToHeading(0, 0, {}, false);
+// 	tongue.set_value(true);
+// 	intake.telOP(true, false, false, false, false, false);
+// 	chassis.moveToPoint(-35.5, 120, 4000, {.maxSpeed = 50}, false);
+
+// 	chassis.moveToPoint(-35.5, 60, 1000, {.forwards = false}, false);
+// 	intake.telOP(false, true, false, false, false, false);
+// }
 
 void autonomous() {
 	chassis.setBrakeMode(pros::E_MOTOR_BRAKE_BRAKE);
