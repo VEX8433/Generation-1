@@ -1,7 +1,9 @@
 #include "main.h"
 #include "pros/rtos.hpp"
+#include "pros/optical.hpp"
 #include "SubSystems/Intake.hpp"
 #include "SubSystems/auton_routes.hpp"
+#include "SubSystems/Localizer.hpp"
 #include "lemlib/api.hpp"
 #include "pros/abstract_motor.hpp"
 // #include <future>
@@ -15,6 +17,13 @@ pros::Motor right(-10, pros::v5::MotorGears::blue);
 pros::Imu inertial(20);
 pros::Distance distance(8);
 pros::Rotation tracking(5);
+
+// Optical sensors for wall localization (adjust port numbers to match your robot)
+// Mount these pointing outward towards the walls
+pros::Optical opticalFront(11);  // Facing forward for Y+ wall detection
+pros::Optical opticalBack(12);   // Facing backward for Y- wall detection
+pros::Optical opticalLeft(13);   // Facing left for X- wall detection
+pros::Optical opticalRight(14);  // Facing right for X+ wall detection
 
 pros::adi::DigitalOut bot('A');
 pros::adi::DigitalOut top('B');
@@ -75,6 +84,10 @@ lemlib::Chassis chassis(drivetrain, // drivetrain settings
 					angular_controller, // angular PID settings
 					sensors // odometry sensors
 );
+
+// Localizer for wall-based position correction
+// Using optical sensors - adjust sensor offsets based on your robot's dimensions
+Localizer localizer(chassis, &opticalFront, &opticalBack, &opticalLeft, &opticalRight);
 
 // Forward declaration for calibration tests (defined in SubSystems/calib.cpp)
 void run_calibration_tests();
@@ -190,8 +203,14 @@ void skills(){
 	pros::delay(300);
 	chassis.turnToHeading(270, 646);
 	chassis.moveToPoint(-74.32, 46.32, 3420, {.maxSpeed=50}); //node 6
+	chassis.waitUntilDone();
+	
+	// LOCALIZATION RESET: Near left wall (X = -72), reset X coordinate
+	// Robot is at the wall, heading 270 (facing left), so left sensor points at wall
+	localizer.resetXWithHeading(-72.0f);
+	
 	// pros::delay(2000);
-	chassis.moveToPoint(-45.12, 46.32, 1436, {.forwards = false}); //node 7	
+	chassis.moveToPoint(-45.12, 46.32, 1436, {.forwards = false}); //node 7
 	chassis.waitUntil(14.629714);
 	matchload_activate(false);
 
@@ -239,6 +258,11 @@ void skills(){
 	pros::delay(500);
 	chassis.turnToHeading(90, 461);
 	chassis.moveToPoint(65.52, 54, 3389, {.maxSpeed = 50}); //prev 5 //node 17
+	chassis.waitUntilDone();
+	
+	// LOCALIZATION RESET: Near right wall (X = +72), reset X coordinate
+	localizer.resetXWithHeading(72.0f);
+	
 	// pros::delay(2000);
 	chassis.turnToHeading(90.0, 461);
 	chassis.moveToPoint(25.92, 52.5, 4912, {.forwards = false}); //node 18 //scoring on long goal
@@ -268,6 +292,11 @@ void skills(){
 	pros::delay(500);
 	chassis.turnToHeading(89.472475, 941);
 	chassis.moveToPoint(63.36, -45.8, 1397);
+	chassis.waitUntilDone();
+	
+	// LOCALIZATION RESET: Near right wall (X = +72), reset X coordinate
+	localizer.resetXWithHeading(72.0f);
+	
 	pros::delay(3000);
 	chassis.turnToHeading(89.255941, 461);
 	chassis.moveToPoint(44.88, -47.04, 3727, {.forwards = false}); //node 23
@@ -300,6 +329,10 @@ void skills(){
 	matchload_activate(true);
 	pros::delay(50);
 	chassis.moveToPoint(-61.44, -49.44, 3870, {.maxSpeed=50}); //nodem28 //bottom right matchload
+	chassis.waitUntilDone();
+	
+	// LOCALIZATION RESET: Near left wall (X = -72), reset X coordinate
+	localizer.resetXWithHeading(-72.0f);
 
 	
 	chassis.waitUntilDone();
@@ -352,6 +385,22 @@ void autonomous() {
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
+    
+    // Configure localizer sensor offsets (distance from robot center to each sensor in inches)
+    // IMPORTANT: Measure these on your robot and update the values!
+    localizer.setSensorOffsets(
+        7.0f,  // front sensor offset from center
+        7.0f,  // back sensor offset from center
+        5.25f, // left sensor offset from center (half of 10.5" track width)
+        5.25f  // right sensor offset from center
+    );
+    
+    // Enable LED on optical sensors for better wall detection
+    opticalFront.set_led_pwm(100);
+    opticalBack.set_led_pwm(100);
+    opticalLeft.set_led_pwm(100);
+    opticalRight.set_led_pwm(100);
+    
     // print position to brain screen
     pros::Task screen_task([&]() {
         while (true) {
