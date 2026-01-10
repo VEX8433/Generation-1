@@ -20,8 +20,8 @@ void Intake::telOP(bool intake, bool scoreTop, bool scoreMid, bool outtake, bool
         right.move_velocity(600);
     }
     else if(scoreMid){
-        left.move_velocity(300);
-        right.move_velocity(300);
+        left.move_velocity(450);
+        right.move_velocity(450);
         bot.set_value(true);
         top.set_value(true);
     }
