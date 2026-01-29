@@ -18,7 +18,17 @@ pros::Imu inertial(20);
 
 
 pros::Rotation tracking(5);
-pros::Distance distance(8);
+
+// TOF Distance Sensors
+pros::Distance distFront(8);   // Front distance sensor
+pros::Distance distLeft(11);   // Left distance sensor
+pros::Distance distBack(19);   // Back distance sensor
+
+// Distance sensor offsets from robot center (mm)
+// Positive values = sensor is that many mm away from center in its direction
+constexpr float OFFSET_FRONT = 0.0f;  // Front sensor offset (mm from center)
+constexpr float OFFSET_LEFT = 0.0f;   // Left sensor offset (mm from center)
+constexpr float OFFSET_BACK = 0.0f;   // Back sensor offset (mm from center)
 
 pros::adi::DigitalOut bot('A');
 pros::adi::DigitalOut top('B');
@@ -82,12 +92,201 @@ lemlib::Chassis chassis(drivetrain, // drivetrain settings
 					sensors // odometry sensors
 );
 
-Localizer localizer(chassis, &distance, nullptr, nullptr, nullptr);
+Localizer localizer(chassis, &distFront, &distBack, &distLeft, nullptr);
 
 // Forward declaration for calibration tests (defined in SubSystems/calib.cpp)
 void run_calibration_tests();
 
-Intake intake(left, right, bot, top, doublePark, distance);
+Intake intake(left, right, bot, top, doublePark, distFront);
+
+/**
+ * @brief Reset robot position by moving to a target distance from wall
+ * 
+ * Automatically uses front or back sensor based on parameter.
+ * Front sensor: too close → move back, too far → move forward
+ * Back sensor: too close → move forward, too far → move back
+ * Uses smooth acceleration to avoid jolting.
+ * 
+ * @param targetDist Target distance in mm (what the sensor should read)
+ * @param useFront true = use front sensor, false = use back sensor
+ * @param speed Motor velocity for adjustment (default 50)
+ */
+void resetToDistance(int targetDist, bool useFront, int speed = 50) {
+    pros::delay(50);  // Allow sensor to stabilize, avoid prefetch error
+    
+    // Select sensor based on parameter
+    pros::Distance& sensor = useFront ? distFront : distBack;
+    
+    int currentDist = sensor.get_distance();
+    
+    // Check for sensor error (returns 9999 or very high value on error)
+    if (currentDist > 3000) {
+        pros::lcd::print(4, "Sensor error! Dist=%dmm", currentDist);
+        return;
+    }
+    
+    pros::lcd::print(4, "%s Target=%dmm Curr=%dmm", useFront ? "FRONT" : "BACK", targetDist, currentDist);
+    
+    // Slew rate control - how fast to accelerate (velocity units per loop)
+    const int SLEW_RATE = 5;  // Increase velocity by 5 each loop (smoother ramp up)
+    int currentVel = 0;
+    
+    if (useFront) {
+        // Front sensor: too far → forward, too close → backward
+        if (currentDist > targetDist) {
+            while (sensor.get_distance() > targetDist) {
+                // Ramp up velocity smoothly
+                if (currentVel < speed) currentVel += SLEW_RATE;
+                if (currentVel > speed) currentVel = speed;
+                left_motors.move_velocity(currentVel);
+                right_motors.move_velocity(currentVel);
+                pros::lcd::print(4, "FRONT Target=%dmm Curr=%dmm", targetDist, sensor.get_distance());
+                pros::delay(20);
+            }
+        } else if (currentDist < targetDist) {
+            while (sensor.get_distance() < targetDist) {
+                // Ramp up velocity smoothly
+                if (currentVel < speed) currentVel += SLEW_RATE;
+                if (currentVel > speed) currentVel = speed;
+                left_motors.move_velocity(-currentVel);
+                right_motors.move_velocity(-currentVel);
+                pros::lcd::print(4, "FRONT Target=%dmm Curr=%dmm", targetDist, sensor.get_distance());
+                pros::delay(20);
+            }
+        }
+    } else {
+        // Back sensor: too far → backward, too close → forward
+        if (currentDist > targetDist) {
+            while (sensor.get_distance() > targetDist) {
+                // Ramp up velocity smoothly
+                if (currentVel < speed) currentVel += SLEW_RATE;
+                if (currentVel > speed) currentVel = speed;
+                left_motors.move_velocity(-currentVel);
+                right_motors.move_velocity(-currentVel);
+                pros::lcd::print(4, "BACK Target=%dmm Curr=%dmm", targetDist, sensor.get_distance());
+                pros::delay(20);
+            }
+        } else if (currentDist < targetDist) {
+            while (sensor.get_distance() < targetDist) {
+                // Ramp up velocity smoothly
+                if (currentVel < speed) currentVel += SLEW_RATE;
+                if (currentVel > speed) currentVel = speed;
+                left_motors.move_velocity(currentVel);
+                right_motors.move_velocity(currentVel);
+                pros::lcd::print(4, "BACK Target=%dmm Curr=%dmm", targetDist, sensor.get_distance());
+                pros::delay(20);
+            }
+        }
+    }
+    
+    // Stop motors
+    left_motors.move_velocity(0);
+    right_motors.move_velocity(0);
+    pros::lcd::print(5, "DONE! Final=%dmm", sensor.get_distance());
+}
+
+/**
+ * @brief Reset robot position using multiple distance sensors
+ * 
+ * Takes an array of sensor-target pairs and adjusts the robot position
+ * until all sensors read their target distances (or timeout).
+ * Use this when you want to align using multiple walls simultaneously.
+ * 
+ * @param sensor1 First distance sensor
+ * @param target1 Target distance for first sensor (mm)
+ * @param sensor2 Second distance sensor (optional, nullptr to skip)
+ * @param target2 Target distance for second sensor (mm)
+ * @param tolerance Acceptable error in mm (default 10mm)
+ * @param speed Motor velocity for adjustment (default 50)
+ * @param timeout Maximum time in ms (default 3000ms)
+ * @return true if all targets reached, false if timeout
+ */
+bool resetToDistanceMulti(
+    pros::Distance& sensor1, int target1,
+    pros::Distance* sensor2 = nullptr, int target2 = 0,
+    int tolerance = 10, int speed = 50, int timeout = 3000
+) {
+    int startTime = pros::millis();
+    
+    while (true) {
+        // Check timeout
+        if (pros::millis() - startTime > timeout) {
+            left_motors.move_velocity(0);
+            right_motors.move_velocity(0);
+            pros::lcd::print(5, "Multi Reset TIMEOUT!");
+            return false;
+        }
+        
+        int dist1 = sensor1.get_distance();
+        int dist2 = sensor2 ? sensor2->get_distance() : target2; // Use target if no sensor
+        
+        int error1 = dist1 - target1;
+        int error2 = sensor2 ? (dist2 - target2) : 0;
+        
+        pros::lcd::print(4, "S1: %dmm (t=%d) S2: %dmm (t=%d)", dist1, target1, dist2, target2);
+        
+        // Check if both within tolerance
+        if (abs(error1) <= tolerance && abs(error2) <= tolerance) {
+            left_motors.move_velocity(0);
+            right_motors.move_velocity(0);
+            pros::lcd::print(5, "Multi Reset DONE!");
+            return true;
+        }
+        
+        // Simple approach: prioritize primary sensor, use secondary for differential
+        int forward = 0;
+        int turn = 0;
+        
+        if (abs(error1) > tolerance) {
+            forward = (error1 > 0) ? speed : -speed;
+        }
+        
+        if (sensor2 && abs(error2) > tolerance) {
+            // Add slight turn correction based on secondary sensor
+            turn = (error2 > 0) ? (speed / 3) : -(speed / 3);
+        }
+        
+        left_motors.move_velocity(forward + turn);
+        right_motors.move_velocity(forward - turn);
+        
+        pros::delay(10);
+    }
+}
+
+/**
+ * @brief Quick position reset using pose update based on distance sensor
+ * 
+ * Instead of moving the robot, this updates the odometry pose based on
+ * the known wall position and sensor reading. Use after manually aligning.
+ * 
+ * @param sensor Distance sensor to read
+ * @param wallCoord The known coordinate of the wall the sensor faces (e.g., -72 or 72 inches)
+ * @param sensorOffsetMM Distance from robot center to sensor (mm)
+ * @param isXAxis true if resetting X coordinate, false for Y
+ * @param wallIsPositive true if wall is at positive coordinate (+72), false for negative (-72)
+ */
+void resetPoseFromSensor(pros::Distance& sensor, float wallCoord, float sensorOffsetMM, bool isXAxis, bool wallIsPositive) {
+    float distInches = sensor.get_distance() / 25.4f; // Convert sensor reading mm to inches
+    float offsetInches = sensorOffsetMM / 25.4f;      // Convert offset mm to inches
+    float newCoord;
+    
+    pros::lcd::print(4, "Sensor: %dmm Offset: %.0fmm", sensor.get_distance(), sensorOffsetMM);
+    
+    if (wallIsPositive) {
+        newCoord = wallCoord - distInches - offsetInches;
+    } else {
+        newCoord = wallCoord + distInches + offsetInches;
+    }
+    
+    lemlib::Pose pose = chassis.getPose();
+    if (isXAxis) {
+        chassis.setPose(newCoord, pose.y, pose.theta);
+        pros::lcd::print(6, "X Reset: %.1f -> %.1f", pose.x, newCoord);
+    } else {
+        chassis.setPose(pose.x, newCoord, pose.theta);
+        pros::lcd::print(6, "Y Reset: %.1f -> %.1f", pose.y, newCoord);
+    }
+}
 
 void long_goal_score(bool active){
 	if (active){
@@ -116,6 +315,50 @@ void  matchload_activate(bool active){
 	intake.telOP(false, false, false, false, false, false);
 	}
 
+}
+
+/**
+ * @brief Test routine for distance sensor position reset
+ * 
+ * Moves robot toward a wall, resets position using distance sensor,
+ * and displays before/after values on brain screen.
+ */
+void testDistanceReset() {
+    // Start at known position
+    chassis.setPose(0, 0, 180);  // Facing the back wall (Y = -72)
+    
+    pros::lcd::print(0, "=== DISTANCE RESET TEST ===");
+    pros::lcd::print(1, "Starting at (0, 0, 180)");
+    pros::delay(1000);
+    
+    // Move toward the back wall
+    pros::lcd::print(2, "Moving toward back wall...");
+    chassis.moveToPoint(0, -50, 3000);  // Move toward Y = -72 wall
+    chassis.waitUntilDone();
+    
+    // Show position before reset
+    lemlib::Pose beforePose = chassis.getPose();
+    pros::lcd::print(2, "Before: X=%.1f Y=%.1f", beforePose.x, beforePose.y);
+    pros::delay(500);
+    
+    // Use distance sensor to move to exact distance from wall (e.g., 300mm)
+    pros::lcd::print(3, "Resetting to 300mm from wall...");
+    resetToDistance(300, true);  // Move until front sensor reads 300mm
+    
+    // Now update odometry based on sensor reading
+    // Front sensor facing back wall (Y = -72), wall is negative
+    resetPoseFromSensor(distFront, -72.0f, OFFSET_FRONT, false, false);
+    
+    // Show position after reset
+    lemlib::Pose afterPose = chassis.getPose();
+    pros::lcd::print(4, "After: X=%.1f Y=%.1f", afterPose.x, afterPose.y);
+    
+    // Calculate expected Y position: wall(-72) + distance + offset
+    float expectedY = -72.0f + (distFront.get_distance() / 25.4f) + (OFFSET_FRONT / 25.4f);
+    pros::lcd::print(5, "Expected Y: %.1f", expectedY);
+    pros::lcd::print(6, "Dist: %dmm Offset: %.0fmm", distFront.get_distance(), OFFSET_FRONT);
+    
+    pros::delay(3000);  // Show results for 3 seconds
 }
 
 void rightside(){
@@ -224,11 +467,11 @@ void skills(){
 
 
 	chassis.turnToHeading(318.868204, 536);
-	chassis.moveToPoint(-38.64, 47.76, 2141);
+	chassis.moveToPoint(-38.64, 47.76, 2141); // node 4
 	chassis.waitUntil(11.144602);
 	middle_goal_score(false);
 	chassis.waitUntilDone();
-	pros::delay(50);
+	pros::delay(200);
 	chassis.turnToHeading(258.310631, 969);
 	chassis.moveToPoint(-45.6, 46.32, 1012);
 	chassis.waitUntil(0.481858);
@@ -248,14 +491,14 @@ void skills(){
 
 	intake.telOP(true, false, false, false, false, false);
 	chassis.waitUntilDone();
-	pros::delay(50);
+	pros::delay(200);
 	chassis.turnToHeading(24.034288, 1258);
 	chassis.moveToPoint(-37.2, 64.08, 1443); //node 8
 	// pros::delay(50);
 	// chassis.turnToHeading(88.174458, 991);
 	// chassis.moveToPoint(-19.922253, 64.630685, 1373);
 	// pros::delay(50);
-	// chassis.moveToPoint(-3.843288, 65.143162, 1332);
+	// chassis.moveToPoint(-3.843288, 65.143162, 1332); 	
 	// pros::delay(50);
 	// chassis.moveToPoint(10.100794, 65.587595, 1255);
 	// pros::delay(50);
@@ -263,8 +506,21 @@ void skills(){
 	// pros::delay(50);
 	chassis.turnToHeading(91.487868, 465);
 	chassis.moveToPoint(41.52, 70.52, 1413); //node 13
-	pros::delay(50);
+
+	
+
+	pros::delay(200);
 	chassis.turnToHeading(177.207298, 1116);
+	
+	resetToDistance(240, false);
+
+
+
+	pros::delay(200000000);
+
+
+
+
 	chassis.moveToPoint(42.0, 53, 1573); // node 14
 	pros::delay(50);
 	chassis.turnToHeading(90.855097, 1120);
@@ -313,22 +569,48 @@ void skills(){
 
 	pros::delay(200);
 
-	if(distance.get_distance() > 600){
-		while(distance.get_distance() > 530){
-			left_motors.move_velocity(50);
-			right_motors.move_velocity(50);
-		}
-	}
-	else if(distance.get_distance() < 600){
-		while(distance.get_distance() < 530){
-			left_motors.move_velocity(-50);
-			right_motors.move_velocity(-50);
-		}
-	}
-	left_motors.move_velocity(0);
-	right_motors.move_velocity(0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	// Position reset using front distance sensor
+	resetToDistance(530, true);  // true = front sensor
 	chassis.turnToHeading(175, 1000);
-	chassis.setPose(chassis.getPose().x, -53, 180);
+	// Update odometry Y based on known wall position (using front sensor offset)
+	resetPoseFromSensor(distFront, -72.0f, OFFSET_FRONT, false, false);
 
 	// localizer.resetXWithHeading(72)
 	// chassis.waitUntil(21.38118);
@@ -539,11 +821,30 @@ void skills(){
 void autonomous() {
 	chassis.setBrakeMode(pros::E_MOTOR_BRAKE_BRAKE);
 	// rightside();
-	leftside();
+	// // leftside();
 	// skills();
-	// soloAWP();
-	
+	// // soloAWP();
+	chassis.setPose(0, 0, 0);
+
+	resetToDistance(200, false, 20);  // true = front sensor
 	// run_calibration_tests();
+
+
+
+
+	// chassis.setPose(-48.000000, 12.000000, 90);
+	// chassis.moveToPoint(-24.0, 24.0, 1662);
+	// pros::delay(50);
+	// chassis.turnToHeading(323.130102, 1194);
+	// chassis.moveToPoint(-42.0, 48.0, 1746);
+	// pros::delay(50);
+	// chassis.turnToHeading(270.0, 920);
+	// chassis.moveToPoint(-54.0, 48.0, 1180);
+	
+	// // Reset position using right distance sensor
+	// // Robot center should be 400mm from wall (sensor reads 400 + 170 = 570mm)
+	// resetToDistance(distRight, 470, OFFSET_RIGHT);
+	// chassis.setPose(-54.0, 48.0, 1180);
 }
 
 
