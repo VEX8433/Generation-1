@@ -101,25 +101,18 @@ Intake intake(left, right, bot, top, doublePark, distFront);
 
 /**
  * @brief Reset robot position by moving to a target distance from wall
- * 
- * Automatically uses front or back sensor based on parameter.
- * Front sensor: too close → move back, too far → move forward
- * Back sensor: too close → move forward, too far → move back
- * Uses smooth acceleration to avoid jolting.
+ * Slows down as it approaches target for accuracy.
  * 
  * @param targetDist Target distance in mm (what the sensor should read)
  * @param useFront true = use front sensor, false = use back sensor
- * @param speed Motor velocity for adjustment (default 50)
+ * @param speed Max motor velocity for adjustment (default 50)
  */
 void resetToDistance(int targetDist, bool useFront, int speed = 50) {
-    pros::delay(50);  // Allow sensor to stabilize, avoid prefetch error
+    pros::delay(50);  // Allow sensor to stabilize
     
-    // Select sensor based on parameter
     pros::Distance& sensor = useFront ? distFront : distBack;
-    
     int currentDist = sensor.get_distance();
     
-    // Check for sensor error (returns 9999 or very high value on error)
     if (currentDist > 3000) {
         pros::lcd::print(4, "Sensor error! Dist=%dmm", currentDist);
         return;
@@ -127,59 +120,51 @@ void resetToDistance(int targetDist, bool useFront, int speed = 50) {
     
     pros::lcd::print(4, "%s Target=%dmm Curr=%dmm", useFront ? "FRONT" : "BACK", targetDist, currentDist);
     
-    // Slew rate control - how fast to accelerate (velocity units per loop)
-    const int SLEW_RATE = 5;  // Increase velocity by 5 each loop (smoother ramp up)
-    int currentVel = 0;
+    const int MIN_SPEED = 10;  // Minimum speed to prevent stalling
+    const int SLOW_RANGE = 100;  // Start slowing down within 100mm of target
     
     if (useFront) {
-        // Front sensor: too far → forward, too close → backward
         if (currentDist > targetDist) {
             while (sensor.get_distance() > targetDist) {
-                // Ramp up velocity smoothly
-                if (currentVel < speed) currentVel += SLEW_RATE;
-                if (currentVel > speed) currentVel = speed;
-                left_motors.move_velocity(currentVel);
-                right_motors.move_velocity(currentVel);
-                pros::lcd::print(4, "FRONT Target=%dmm Curr=%dmm", targetDist, sensor.get_distance());
-                pros::delay(20);
+                int dist = sensor.get_distance();
+                int error = dist - targetDist;
+                int moveSpeed = (error < SLOW_RANGE) ? (MIN_SPEED + (speed - MIN_SPEED) * error / SLOW_RANGE) : speed;
+                left_motors.move_velocity(moveSpeed);
+                right_motors.move_velocity(moveSpeed);
+                pros::delay(10);
             }
         } else if (currentDist < targetDist) {
             while (sensor.get_distance() < targetDist) {
-                // Ramp up velocity smoothly
-                if (currentVel < speed) currentVel += SLEW_RATE;
-                if (currentVel > speed) currentVel = speed;
-                left_motors.move_velocity(-currentVel);
-                right_motors.move_velocity(-currentVel);
-                pros::lcd::print(4, "FRONT Target=%dmm Curr=%dmm", targetDist, sensor.get_distance());
-                pros::delay(20);
+                int dist = sensor.get_distance();
+                int error = targetDist - dist;
+                int moveSpeed = (error < SLOW_RANGE) ? (MIN_SPEED + (speed - MIN_SPEED) * error / SLOW_RANGE) : speed;
+                left_motors.move_velocity(-moveSpeed);
+                right_motors.move_velocity(-moveSpeed);
+                pros::delay(10);
             }
         }
     } else {
-        // Back sensor: too far → backward, too close → forward
         if (currentDist > targetDist) {
             while (sensor.get_distance() > targetDist) {
-                // Ramp up velocity smoothly
-                if (currentVel < speed) currentVel += SLEW_RATE;
-                if (currentVel > speed) currentVel = speed;
-                left_motors.move_velocity(-currentVel);
-                right_motors.move_velocity(-currentVel);
-                pros::lcd::print(4, "BACK Target=%dmm Curr=%dmm", targetDist, sensor.get_distance());
-                pros::delay(20);
+                int dist = sensor.get_distance();
+                int error = dist - targetDist;
+                int moveSpeed = (error < SLOW_RANGE) ? (MIN_SPEED + (speed - MIN_SPEED) * error / SLOW_RANGE) : speed;
+                left_motors.move_velocity(-moveSpeed);
+                right_motors.move_velocity(-moveSpeed);
+                pros::delay(10);
             }
         } else if (currentDist < targetDist) {
             while (sensor.get_distance() < targetDist) {
-                // Ramp up velocity smoothly
-                if (currentVel < speed) currentVel += SLEW_RATE;
-                if (currentVel > speed) currentVel = speed;
-                left_motors.move_velocity(currentVel);
-                right_motors.move_velocity(currentVel);
-                pros::lcd::print(4, "BACK Target=%dmm Curr=%dmm", targetDist, sensor.get_distance());
-                pros::delay(20);
+                int dist = sensor.get_distance();
+                int error = targetDist - dist;
+                int moveSpeed = (error < SLOW_RANGE) ? (MIN_SPEED + (speed - MIN_SPEED) * error / SLOW_RANGE) : speed;
+                left_motors.move_velocity(moveSpeed);
+                right_motors.move_velocity(moveSpeed);
+                pros::delay(10);
             }
         }
     }
     
-    // Stop motors
     left_motors.move_velocity(0);
     right_motors.move_velocity(0);
     pros::lcd::print(5, "DONE! Final=%dmm", sensor.get_distance());
@@ -444,118 +429,149 @@ void soloAWP(){
 }
 
 void skills(){
-	intake.telOP(true, false, false, false, false, false);
-	// chassis.setPose(0, 0, 0);
+// 	// intake.telOP(true, false, false, false, false, false);
+// 	chassis.setPose(0, 0, 0);
 
-	chassis.setPose(-49.920000, 15.120000, 85.236000);
+// 	chassis.setPose(-49.920000, 15.120000, 85.236000);
 
 	
 
-	chassis.turnToHeading(90.0, 503);
-	chassis.moveToPoint(-36.24, 15.12, 1245);
-	pros::delay(50);
-	chassis.turnToHeading(52.815294, 805);
-	chassis.moveToPoint(-22.32, 25.68, 1379);
-	pros::delay(50);
-	chassis.turnToHeading(312.633752, 1192);
-	chassis.moveToPoint(-7.2, 11.76, 1478, {.forwards = false});
-	pros::delay(1000);
-	middle_goal_score(true);
+// 	chassis.turnToHeading(90.0, 503);
+// 	chassis.moveToPoint(-36.24, 15.12, 1245);
+// 	pros::delay(50);
+// 	chassis.turnToHeading(52.815294, 805);
+// 	chassis.moveToPoint(-22.32, 25.68, 1379);
+// 	pros::delay(50);
+// 	chassis.turnToHeading(312.633752, 1192);
+// 	chassis.moveToPoint(-7.2, 11.76, 1478, {.forwards = false});
+// 	pros::delay(1000);
+// 	middle_goal_score(true);
 	
 	
-	// pros::delay(1000);
+// 	// pros::delay(1000);
 
 
-	chassis.turnToHeading(318.868204, 536);
-	chassis.moveToPoint(-38.64, 47.76, 2141); // node 4
-	chassis.waitUntil(11.144602);
-	middle_goal_score(false);
-	chassis.waitUntilDone();
-	pros::delay(200);
-	chassis.turnToHeading(258.310631, 969);
-	chassis.moveToPoint(-45.6, 46.32, 1012);
-	chassis.waitUntil(0.481858);
+// 	chassis.turnToHeading(318.868204, 536);
+// 	chassis.moveToPoint(-38.64, 47.76, 2141); // node 4
+// 	chassis.waitUntil(11.144602);
+// 	middle_goal_score(false);
+// 	chassis.waitUntilDone();
+// 	pros::delay(200);
+// 	chassis.turnToHeading(258.310631, 969);
+// 	chassis.moveToPoint(-45.6, 46.32, 1012);
+// 	chassis.waitUntil(0.481858);
 
 
-	matchload_activate(true);
-	chassis.waitUntilDone();
-	pros::delay(300);
-	chassis.turnToHeading(270, 646);
-	chassis.moveToPoint(-74.32, 46.32, 3420, {.maxSpeed=50}, false); //node 6
+// 	matchload_activate(true);
+// 	chassis.waitUntilDone();
+// 	pros::delay(300);
+// 	chassis.turnToHeading(270, 646);
+// 	chassis.moveToPoint(-74.32, 46.32, 3420, {.maxSpeed=50}, false); //node 6
 
+// 	// pros::delay(2000);
+// 	chassis.moveToPoint(-45.12, 46.32, 1436, {.forwards = false}); //node 7	
+// 	chassis.waitUntil(14.629714);
+// 	matchload_activate(false);
+
+
+// 	intake.telOP(true, false, false, false, false, false);
+// 	chassis.waitUntilDone();
+// 	pros::delay(200);
+// 	chassis.turnToHeading(24.034288, 1258);
+// 	chassis.moveToPoint(-37.2, 64.08, 1443); //node 8
+// 	// pros::delay(50);
+// 	// chassis.turnToHeading(88.174458, 991);
+// 	// chassis.moveToPoint(-19.922253, 64.630685, 1373);
+// 	// pros::delay(50);
+// 	// chassis.moveToPoint(-3.843288, 65.143162, 1332); 	
+// 	// pros::delay(50);
+// 	// chassis.moveToPoint(10.100794, 65.587595, 1255);
+// 	// pros::delay(50);
+// 	// chassis.moveToPoint(23.04, 66.0, 1217);
+// 	// pros::delay(50);
+// 	chassis.turnToHeading(91.487868, 465);
+// 	chassis.moveToPoint(42, 70.52, 2000, {.maxSpeed=100}); //node 13
+
+	
+
+// 	pros::delay(2000);
+// 	chassis.turnToHeading(173, 1116, {.maxSpeed=100});
+// 	pros::delay(1000);
+// 	resetToDistance(450, false, 100);
+
+	
+	
+	
+	
+	
+
+
+
+// 	// chassis.moveToPoint(42.0, 53, 1573); // node 14
+// 	pros::delay(1000);
+
+
+// 	// resetToDistance(450, false);
+	
+
+
+
+// 	// chassis.waitUntilDone();
+// 	// pros::delay(3000);
+
+// 	chassis.setPose(42, 53, 180);
+
+
+
+
+
+// 	pros::delay(50);
+// 	chassis.turnToHeading(90, 1120);
+
+
+
+
+
+
+	// chassis.moveToPoint(23, 53, 1000, {.forwards = false, .maxSpeed=100}, false); //node 15
+	// long_goal_score(true);
+	// pros::delay(2500); 
+	// chassis.waitUntil(11.940754);
+
+
+	// // initial match, top left score
+	
+	// chassis.turnToHeading(90, 461); //prev89
+	// chassis.moveToPoint(47.76, 53, 1518, {.maxSpeed=100}); //prey56 //node 16?? ///current 48
+	// chassis.waitUntil(16.507699);
+
+
+	// //top left matchload
+	// matchload_activate(true);
+	// chassis.waitUntilDone();
+	// pros::delay(500);
+	// chassis.turnToHeading(87, 461);
+	// chassis.moveToPoint(65.52, 53, 3389, {.maxSpeed = 60}); //prev 5 //node 17
 	// pros::delay(2000);
-	chassis.moveToPoint(-45.12, 46.32, 1436, {.forwards = false}); //node 7	
-	chassis.waitUntil(14.629714);
-	matchload_activate(false);
-
-
-	intake.telOP(true, false, false, false, false, false);
-	chassis.waitUntilDone();
-	pros::delay(200);
-	chassis.turnToHeading(24.034288, 1258);
-	chassis.moveToPoint(-37.2, 64.08, 1443); //node 8
-	// pros::delay(50);
-	// chassis.turnToHeading(88.174458, 991);
-	// chassis.moveToPoint(-19.922253, 64.630685, 1373);
-	// pros::delay(50);
-	// chassis.moveToPoint(-3.843288, 65.143162, 1332); 	
-	// pros::delay(50);
-	// chassis.moveToPoint(10.100794, 65.587595, 1255);
-	// pros::delay(50);
-	// chassis.moveToPoint(23.04, 66.0, 1217);
-	// pros::delay(50);
-	chassis.turnToHeading(91.487868, 465);
-	chassis.moveToPoint(41.52, 70.52, 1413); //node 13
-
-	
-
-	pros::delay(200);
-	chassis.turnToHeading(177.207298, 1116);
-	
-	resetToDistance(240, false);
-
-
-
-	pros::delay(200000000);
-
-
-
-
-	chassis.moveToPoint(42.0, 53, 1573); // node 14
-	pros::delay(50);
-	chassis.turnToHeading(90.855097, 1120);
-	
-	chassis.moveToPoint(23, 53, 1000, {.forwards = false}, false); //node 15
-	long_goal_score(true);
-	pros::delay(2500); 
-	chassis.waitUntil(11.940754);
-
-
-	//initial match, top left score
-	
-	chassis.turnToHeading(90, 461); //prev89
-	chassis.moveToPoint(47.76, 53, 1518); //prey56 //node 16?? ///current 48
-	chassis.waitUntil(16.507699);
-
-
-	//top left matchload
-	matchload_activate(true);
-	chassis.waitUntilDone();
-	pros::delay(500);
-	chassis.turnToHeading(85, 461);
-	chassis.moveToPoint(65.52, 54, 3389, {.maxSpeed = 50}); //prev 5 //node 17
-	// pros::delay(2000);
-	chassis.turnToHeading(90.0, 461);
-	chassis.moveToPoint(23, 52.5, 1500, {.forwards = false}, false); //node 18 //scoring on long goal
+	// chassis.turnToHeading(90.0, 461);
+	// chassis.moveToPoint(23, 53, 1500, {.forwards = false, .maxSpeed=100}, false); //node 18 //scoring on long goal
 	// chassis.waitUntil(32.81013);
+
+
+
 //__________above no change is good
+	chassis.setPose(23, 53, 90);
+
 
 	//top left 2nd matchload score		
 	matchload_activate(false);
 
 	long_goal_score(true);
+
+
+
 	pros::delay(2500);
-	chassis.moveToPoint(45, 53, 1539); //node 19
+	chassis.moveToPoint(40, 53, 1539, {.maxSpeed=110}); //node 19
 
 	chassis.turnToHeading(180, 1204);
 	// LOCALIZATION RESET: Near left wall (X = -72), reset X coordinate
@@ -565,7 +581,7 @@ void skills(){
 	// chassis.moveToPoint(30.48, -26.16, 2975); //node 20
 	// pros::delay(50);
 	// chassis.turnToHeading(144.833564, 883);
-	chassis.moveToPoint(45, -49, 2000000, {.maxSpeed = 80}, false); // ode 21
+	chassis.moveToPoint(40, -42, 2000000, {.maxSpeed = 120}, false); // ode 21
 
 	pros::delay(200);
 
@@ -607,10 +623,11 @@ void skills(){
 
 	
 	// Position reset using front distance sensor
-	resetToDistance(530, true);  // true = front sensor
-	chassis.turnToHeading(175, 1000);
+	resetToDistance(540, true);  // true = front sensor
+	chassis.setPose(40, -45, 180);
+	// chassis.turnToHeading(175, 1000);
 	// Update odometry Y based on known wall position (using front sensor offset)
-	resetPoseFromSensor(distFront, -72.0f, OFFSET_FRONT, false, false);
+	// resetPoseFromSensor(distFront, -72.0f, OFFSET_FRONT, false, false);
 
 	// localizer.resetXWithHeading(72)
 	// chassis.waitUntil(21.38118);
@@ -627,76 +644,10 @@ void skills(){
 	matchload_activate(true);
 	pros::delay(400);
 
-	chassis.moveToPoint(65, -53, 1397, {}, false); //node 22
+	chassis.moveToPoint(65, -45, 2000, {.maxSpeed=40}, false); //node 22 // THIS IS THE MATCHLOAD POSITION
 
-	chassis.waitUntilDone();
+	// chassis.waitUntilDone();
 
-
-
-
-
-
-
-
-
-
-
-
-
-// 	//reset code HERE. node 6 is = node 22.
-// 	chassis.setPose(resetPosX, resetPosY, -90);
-	
-// 	pros::delay(2000);
-
-// 	chassis.moveToPoint(-45.12, 46.32, 1436, {.forwards = false}); //node 7	
-// 	chassis.waitUntil(14.629714);
-// 	matchload_activate(false);
-
-
-// 	intake.telOP(true, false, false, false, false, false);
-// 	chassis.waitUntilDone();
-// 	pros::delay(50);
-// 	chassis.turnToHeading(24.034288, 1258);
-// 	chassis.moveToPoint(-37.2, 64.08, 1443); //node 8
-// 	chassis.turnToHeading(91.487868, 465);
-// 	chassis.moveToPoint(41.52, 70.52, 1413); //node 13
-// 	pros::delay(50);
-// 	chassis.turnToHeading(177.207298, 1116);
-// 	chassis.moveToPoint(42.0, 53, 1573); // node 14
-// 	pros::delay(50);
-// 	chassis.turnToHeading(90.855097, 1120);
-	
-// 	chassis.moveToPoint(23, 53, 1000, {.forwards = false}, false); //node 15
-// 	long_goal_score(true);
-// 	pros::delay(2500); 
-// 	chassis.waitUntil(11.940754);
-
-
-// 	//initial match, top left score
-	
-// 	chassis.turnToHeading(90, 461); //prev89
-// 	chassis.moveToPoint(47.76, 53, 1518); //prey56 //node 16?? ///current 48
-// 	chassis.waitUntil(16.507699);
-
-
-// 	//top left matchload
-// 	matchload_activate(true);
-// 	chassis.waitUntilDone();
-// 	pros::delay(500);
-// 	chassis.turnToHeading(85, 461);
-// 	chassis.moveToPoint(65.52, 54, 3389, {.maxSpeed = 50}); //prev 5 //node 17
-// 	// pros::delay(2000);
-// 	chassis.turnToHeading(90.0, 461);
-// 	chassis.moveToPoint(23, 52.5, 1500, {.forwards = false}, false); //node 18 //scoring on long goal
-// 	// chassis.waitUntil(32.81013);
-// //__________above no change is good
-
-// 	//top left 2nd matchload score		
-// 	matchload_activate(false);
-
-// 	long_goal_score(true);
-// 	pros::delay(2500);
-// 	chassis.moveToPoint(45, 53, 1539); //node 19
 
 
 
@@ -723,39 +674,47 @@ void skills(){
 
 
 	pros::delay(2000);
-	chassis.turnToHeading(90, 461);
+	// chassis.turnToHeading(90, 461);
 	// chassis.moveToPoint(44.88, -53, 3727, {.forwards = false}); //node 23
-	chassis.moveToPoint(45, -49, 2000000, {.maxSpeed = 80}, false); // ode 21 NEW NODE 23
-	chassis.waitUntil(13.722215);
+	chassis.moveToPoint(40, -45, 2000, {.forwards = false, .maxSpeed = 80}); // ode 21 NEW NODE 23
+	// chassis.waitUntil(13.722215);
+
 
 	
 	//top right finished matchload
 	matchload_activate(false);
 	chassis.waitUntilDone();
 	pros::delay(50);
-	chassis.turnToHeading(222.909841, 1317);
-	chassis.moveToPoint(33, -73.08, 1561);//node 24
+	chassis.turnToHeading(180, 1317);
+	chassis.moveToPoint(33, -60, 1561);//node 24
 	pros::delay(50);
 	chassis.turnToHeading(270, 884);
-	chassis.moveToPoint(-45.36, -73.08, 2753);//node 25
-	pros::delay(50);
+	chassis.moveToPoint(-45.36, -63, 2753);//node 25
+	chassis.turnToHeading(0, 461);
+	pros::delay(1000);
+	chassis.moveToPoint(-46.56, -44, 1237); //node 26
+	
 
-	//bottom right section
-	chassis.turnToHeading(354.897835, 1108);
-	chassis.moveToPoint(-46.56, -47, 1237); //node 26
-	pros::delay(50);
+
+
+
+	pros::delay(1000);
+	resetToDistance(500, false, 100);
+	pros::delay(1000);
+	chassis.setPose(-45, -47, 0);
+
 	chassis.turnToHeading(270.0, 1112);
-	chassis.moveToPoint(-23, -48, 1500, {.forwards = false}); //node 27
+	chassis.moveToPoint(-23, -47, 1500, {.forwards = false}); //node 27
 
 	//bottom right score
 	long_goal_score(true);
 	pros::delay(2500);
 	matchload_activate(true);
 	pros::delay(50);
-	chassis.moveToPoint(-61.44, -47, 3870, {.maxSpeed=50}); //nodem28 //bottom right matchload
+	chassis.moveToPoint(-68.44, -47, 3870, {.maxSpeed=50}); //nodem28 //bottom right matchload
 
 	chassis.waitUntilDone();
-	pros::delay(50);
+	pros::delay(2000);
 	chassis.moveToPoint(-51.84, -47, 1941, {.forwards = false});//node 29
 	pros::delay(500);
 	chassis.moveToPoint(-24.96, -47, 1663, {.forwards = false}); //node 30
@@ -820,31 +779,9 @@ void skills(){
 
 void autonomous() {
 	chassis.setBrakeMode(pros::E_MOTOR_BRAKE_BRAKE);
-	// rightside();
-	// // leftside();
-	// skills();
-	// // soloAWP();
-	chassis.setPose(0, 0, 0);
-
-	resetToDistance(200, false, 20);  // true = front sensor
-	// run_calibration_tests();
-
-
-
-
-	// chassis.setPose(-48.000000, 12.000000, 90);
-	// chassis.moveToPoint(-24.0, 24.0, 1662);
-	// pros::delay(50);
-	// chassis.turnToHeading(323.130102, 1194);
-	// chassis.moveToPoint(-42.0, 48.0, 1746);
-	// pros::delay(50);
-	// chassis.turnToHeading(270.0, 920);
-	// chassis.moveToPoint(-54.0, 48.0, 1180);
 	
-	// // Reset position using right distance sensor
-	// // Robot center should be 400mm from wall (sensor reads 400 + 170 = 570mm)
-	// resetToDistance(distRight, 470, OFFSET_RIGHT);
-	// chassis.setPose(-54.0, 48.0, 1180);
+	// resetToDistance(240, false);
+	skills();
 }
 
 
@@ -887,7 +824,7 @@ void disabled() {}
  * competition-specific initialization routines, such as an autonomous selector
  * on the LCD.
  *
- * This task will exit when the robot is enabled and autonomous or opcontrol
+* This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
 void competition_initialize() {}
