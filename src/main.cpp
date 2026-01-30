@@ -440,7 +440,7 @@ void skills(){
 	chassis.moveToPoint(-36.24, 15.12, 1245);
 	pros::delay(50);
 	chassis.turnToHeading(52.815294, 805);
-	chassis.moveToPoint(-22.32, 25.68, 1379);
+	chassis.moveToPoint(-22.32, 25.68, 1379, {.maxSpeed = 60});
 	pros::delay(50);
 	chassis.turnToHeading(312.633752, 1192);
 	chassis.moveToPoint(-7.2, 11.76, 1478, {.forwards = false});
@@ -455,11 +455,11 @@ void skills(){
 	middle_goal_score(false);
 	chassis.moveToPoint(-45.6, 47, 1312, {}, false);
 	pros::delay(200);
-	chassis.turnToHeading(265, 1000, {}, false);
+	chassis.turnToHeading(260, 1000, {}, false);
 
 
 	matchload_activate(true);
-	chassis.moveToPoint(-74.32, 46.5, 1000, {.maxSpeed=50}, false); //node 6
+	chassis.moveToPoint(-74.32, 45.5, 1000, {.maxSpeed=50}, false); //node 6
 	pros::delay(300);
 	chassis.moveToPoint(-74.32, 46.5, 1000, {.maxSpeed=20}, false); //node 6
 
@@ -474,16 +474,7 @@ void skills(){
 	pros::delay(200);
 	chassis.turnToHeading(24.034288, 1258);
 	chassis.moveToPoint(-37.2, 64.08, 1443); //node 8
-	// pros::delay(50);
-	// chassis.turnToHeading(88.174458, 991);
-	// chassis.moveToPoint(-19.922253, 64.630685, 1373);
-	// pros::delay(50); b
-	// chassis.moveToPoint(-3.843288, 65.143162, 1332); 	
-	// pros::delay(50);
-	// chassis.moveToPoint(10.100794, 65.587595, 1255);
-	// pros::delay(50);
-	// chassis.moveToPoint(23.04, 66.0, 1217);
-	// pros::delay(50);
+
 	chassis.turnToHeading(91.487868, 465);
 	chassis.moveToPoint(42, 70.52, 2000, {.maxSpeed=100}); //node 13
 
