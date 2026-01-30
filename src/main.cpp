@@ -381,39 +381,16 @@ void skills(){
 
 	pros::delay(2500);
 	chassis.moveToPoint(37, 53, 1539, {.maxSpeed=110}); //node 19
-
 	chassis.turnToHeading(180, 1204);
-	// LOCALIZATION RESET: Near left wall (X = -72), reset X coordinate
-	// Robot is at the wall, heading 270 (facing left), so left sensor points at wall
-	// localizer.resetXWithHeading(-72.0f);)
-	
-	// chassis.moveToPoint(30.48, -26.16, 2975); //node 20
-	// pros::delay(50);
-	// chassis.turnToHeading(144.833564, 883);
+
 	chassis.moveToPoint(37, -42, 20000, {.maxSpeed = 100}, false); // ode 21
 	chassis.moveToPoint(37, -42, 20000, {.maxSpeed = 100}, false); // ode 21
 
 	pros::delay(200);
-
-
-
-
-
-	
-	// Position reset using front distance sensor
 	resetToDistance(540, true);  // true = front sensor
 	chassis.setPose(40, -45, 180);
-	// chassis.turnToHeading(175, 1000);
-	// Update odometry Y based on known wall position (using front sensor offset)
-	// resetPoseFromSensor(distFront, -72.0f, OFFSET_FRONT, false, false);
-
-	// localizer.resetXWithHeading(72)
-	// chassis.waitUntil(21.38118);
-
 
 	//top right matchload
-	// chassis.waitUntilDone();
-	// pros::delay(500);
 	
 	chassis.turnToHeading(90, 941, {}, false);
 	
@@ -425,12 +402,7 @@ void skills(){
 	chassis.moveToPoint(65, -45, 1300, {.maxSpeed=50}, false); //node 22 // THIS IS THE MATCHLOAD POSITION
 	pros::delay(300);
 	chassis.moveToPoint(65, -45, 1700, {.maxSpeed=20}, false); 
-
-	// chassis.waitUntilDone();
-	// chassis.turnToHeading(90, 461);
-	// chassis.moveToPoint(44.88, -53, 3727, {.forwards = false}); //node 23
 	chassis.moveToPoint(40, -45, 2000, {.forwards = false, .maxSpeed = 80}); // ode 21 NEW NODE 23
-	// chassis.waitUntil(13.722215);
 
 
 	
@@ -447,7 +419,6 @@ void skills(){
 	chassis.turnToHeading(0, 461);
 	pros::delay(1000);
 	chassis.moveToPoint(-46, -44, 1237); //node 26
-	
 	chassis.moveToPoint(-46, -44, 1237); //node 26
 	
 
@@ -458,26 +429,17 @@ void skills(){
 
 
 
-
-
 	chassis.turnToHeading(270.0, 1112);
 	chassis.moveToPoint(-23, -47, 1500, {.forwards = false}); //node 27
-
 	//bottom right score
 	long_goal_score(true);
 	pros::delay(2500);
 	// chassis.setPose(chassis.getPose().x, chassis.getPose().y, 270);
-
-
-	// chassis.setPose(chassis.getPose().x, chassis.getPose().y, 270);
-
-
 	matchload_activate(true);
 	pros::delay(50);
 	chassis.moveToPoint(-68.44, -47, 2000, {.maxSpeed=50}, false); //nodem28 //bottom right matchload
 	pros::delay(3000);
 	pros::delay(3000);
-
 	chassis.moveToPoint(-51.84, -47, 1941, {.forwards = false});//node 29
 	pros::delay(500);
 	chassis.moveToPoint(-24.96, -47, 1663, {.forwards = false}); //node 30
@@ -492,11 +454,11 @@ void skills(){
 	pros::delay(50);
 	chassis.turnToHeading(320, 906);
 	chassis.turnToHeading(320, 906);
-	chassis.moveToPoint(-64.8, -17.28, 2006); //node 32
+	chassis.moveToPoint(-70, -17.28, 2006); //node 32
 	pros::delay(50);
 	chassis.turnToHeading(0, 834);
 	chassis.turnToHeading(0, 834);
-	chassis.moveToPoint(-64.56, -0.24, 1364); //node 33
+	chassis.moveToPoint(-60, -0.24, 1364); //node 33
 }
 
 
