@@ -199,24 +199,25 @@ void  matchload_activate(bool active){
 
 
 void rightside(){
-    // set position to x:0, y:0, heading:0
-	
+	// set position to x:0, y:0, heading:0
     chassis.setPose(0, 0, 0);
     // turn to face heading 90 with a very long timeout
 	intake.telOP(true, false, false, false, false, false);  // intake
 	//queue balls (intake)
 	chassis.moveToPose(12, 37, 24, 2000, {.maxSpeed = 60});
 	chassis.turnToHeading(114, 1000);
-	chassis.moveToPoint(35, 6, 2000);
+	chassis.moveToPoint(36, 6, 2000);
 	chassis.turnToHeading(180,  2000);
 	tongue.set_value(true);
-	chassis.moveToPose(35,-20,180,1500, {.maxSpeed = 150});
+	chassis.moveToPose(36,-20,180,1500, {.maxSpeed = 150});
 	chassis.moveToPose(36.73, 30, 180,  1500, {.forwards = false, .minSpeed = 60}, false);
 	intake.telOP(false, true, false, false, false, false);  // intake
 	pros::delay(3000);
 	tongue.set_value(false);
 	chassis.moveToPoint(36.73, 17, 1000, {.minSpeed = 60}, false);
-	chassis.moveToPoint(36.73, 40, 1000, {.forwards=false,.minSpeed = 200}, false);
+	chassis.turnToHeading(130, 1000);
+	chassis.moveToPoint(33, 20)
+	chassis.moveToPoint(33, 35, 3000, {.forwards=false,.maxSpeed = 60}, false);
 }
 
 void leftside(){
