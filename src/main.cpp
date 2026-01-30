@@ -1,6 +1,7 @@
 #include "main.h"
 #include "pros/rtos.hpp"
 #include "SubSystems/Intake.hpp"
+#include "SubSystems/AutonSelector.hpp"
 #include "lemlib/api.hpp"
 #include "pros/abstract_motor.hpp"
 #include "SubSystems/Localizer.hpp"
@@ -71,7 +72,7 @@ lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
 											100, // small error range timeout, in milliseconds
 											2, // large error range, in inches
 											500, // large error range timeout, in milliseconds
-											30 // maximum acceleration (slew)
+											10 // maximum acceleration (slew)
 );
 
 // angular PID controller
@@ -94,8 +95,7 @@ lemlib::Chassis chassis(drivetrain, // drivetrain settings
 
 Localizer localizer(chassis, &distFront, &distBack, &distLeft, nullptr);
 
-// Forward declaration for calibration tests (defined in SubSystems/calib.cpp)
-void run_calibration_tests();
+
 
 Intake intake(left, right, bot, top, doublePark, distFront);
 
@@ -170,108 +170,9 @@ void resetToDistance(int targetDist, bool useFront, int speed = 50) {
     pros::lcd::print(5, "DONE! Final=%dmm", sensor.get_distance());
 }
 
-/**
- * @brief Reset robot position using multiple distance sensors
- * 
- * Takes an array of sensor-target pairs and adjusts the robot position
- * until all sensors read their target distances (or timeout).
- * Use this when you want to align using multiple walls simultaneously.
- * 
- * @param sensor1 First distance sensor
- * @param target1 Target distance for first sensor (mm)
- * @param sensor2 Second distance sensor (optional, nullptr to skip)
- * @param target2 Target distance for second sensor (mm)
- * @param tolerance Acceptable error in mm (default 10mm)
- * @param speed Motor velocity for adjustment (default 50)
- * @param timeout Maximum time in ms (default 3000ms)
- * @return true if all targets reached, false if timeout
- */
-bool resetToDistanceMulti(
-    pros::Distance& sensor1, int target1,
-    pros::Distance* sensor2 = nullptr, int target2 = 0,
-    int tolerance = 10, int speed = 50, int timeout = 3000
-) {
-    int startTime = pros::millis();
-    
-    while (true) {
-        // Check timeout
-        if (pros::millis() - startTime > timeout) {
-            left_motors.move_velocity(0);
-            right_motors.move_velocity(0);
-            pros::lcd::print(5, "Multi Reset TIMEOUT!");
-            return false;
-        }
-        
-        int dist1 = sensor1.get_distance();
-        int dist2 = sensor2 ? sensor2->get_distance() : target2; // Use target if no sensor
-        
-        int error1 = dist1 - target1;
-        int error2 = sensor2 ? (dist2 - target2) : 0;
-        
-        pros::lcd::print(4, "S1: %dmm (t=%d) S2: %dmm (t=%d)", dist1, target1, dist2, target2);
-        
-        // Check if both within tolerance
-        if (abs(error1) <= tolerance && abs(error2) <= tolerance) {
-            left_motors.move_velocity(0);
-            right_motors.move_velocity(0);
-            pros::lcd::print(5, "Multi Reset DONE!");
-            return true;
-        }
-        
-        // Simple approach: prioritize primary sensor, use secondary for differential
-        int forward = 0;
-        int turn = 0;
-        
-        if (abs(error1) > tolerance) {
-            forward = (error1 > 0) ? speed : -speed;
-        }
-        
-        if (sensor2 && abs(error2) > tolerance) {
-            // Add slight turn correction based on secondary sensor
-            turn = (error2 > 0) ? (speed / 3) : -(speed / 3);
-        }
-        
-        left_motors.move_velocity(forward + turn);
-        right_motors.move_velocity(forward - turn);
-        
-        pros::delay(10);
-    }
-}
 
-/**
- * @brief Quick position reset using pose update based on distance sensor
- * 
- * Instead of moving the robot, this updates the odometry pose based on
- * the known wall position and sensor reading. Use after manually aligning.
- * 
- * @param sensor Distance sensor to read
- * @param wallCoord The known coordinate of the wall the sensor faces (e.g., -72 or 72 inches)
- * @param sensorOffsetMM Distance from robot center to sensor (mm)
- * @param isXAxis true if resetting X coordinate, false for Y
- * @param wallIsPositive true if wall is at positive coordinate (+72), false for negative (-72)
- */
-void resetPoseFromSensor(pros::Distance& sensor, float wallCoord, float sensorOffsetMM, bool isXAxis, bool wallIsPositive) {
-    float distInches = sensor.get_distance() / 25.4f; // Convert sensor reading mm to inches
-    float offsetInches = sensorOffsetMM / 25.4f;      // Convert offset mm to inches
-    float newCoord;
-    
-    pros::lcd::print(4, "Sensor: %dmm Offset: %.0fmm", sensor.get_distance(), sensorOffsetMM);
-    
-    if (wallIsPositive) {
-        newCoord = wallCoord - distInches - offsetInches;
-    } else {
-        newCoord = wallCoord + distInches + offsetInches;
-    }
-    
-    lemlib::Pose pose = chassis.getPose();
-    if (isXAxis) {
-        chassis.setPose(newCoord, pose.y, pose.theta);
-        pros::lcd::print(6, "X Reset: %.1f -> %.1f", pose.x, newCoord);
-    } else {
-        chassis.setPose(pose.x, newCoord, pose.theta);
-        pros::lcd::print(6, "Y Reset: %.1f -> %.1f", pose.y, newCoord);
-    }
-}
+
+
 
 void long_goal_score(bool active){
 	if (active){
@@ -302,49 +203,7 @@ void  matchload_activate(bool active){
 
 }
 
-/**
- * @brief Test routine for distance sensor position reset
- * 
- * Moves robot toward a wall, resets position using distance sensor,
- * and displays before/after values on brain screen.
- */
-void testDistanceReset() {
-    // Start at known position
-    chassis.setPose(0, 0, 180);  // Facing the back wall (Y = -72)
-    
-    pros::lcd::print(0, "=== DISTANCE RESET TEST ===");
-    pros::lcd::print(1, "Starting at (0, 0, 180)");
-    pros::delay(1000);
-    
-    // Move toward the back wall
-    pros::lcd::print(2, "Moving toward back wall...");
-    chassis.moveToPoint(0, -50, 3000);  // Move toward Y = -72 wall
-    chassis.waitUntilDone();
-    
-    // Show position before reset
-    lemlib::Pose beforePose = chassis.getPose();
-    pros::lcd::print(2, "Before: X=%.1f Y=%.1f", beforePose.x, beforePose.y);
-    pros::delay(500);
-    
-    // Use distance sensor to move to exact distance from wall (e.g., 300mm)
-    pros::lcd::print(3, "Resetting to 300mm from wall...");
-    resetToDistance(300, true);  // Move until front sensor reads 300mm
-    
-    // Now update odometry based on sensor reading
-    // Front sensor facing back wall (Y = -72), wall is negative
-    resetPoseFromSensor(distFront, -72.0f, OFFSET_FRONT, false, false);
-    
-    // Show position after reset
-    lemlib::Pose afterPose = chassis.getPose();
-    pros::lcd::print(4, "After: X=%.1f Y=%.1f", afterPose.x, afterPose.y);
-    
-    // Calculate expected Y position: wall(-72) + distance + offset
-    float expectedY = -72.0f + (distFront.get_distance() / 25.4f) + (OFFSET_FRONT / 25.4f);
-    pros::lcd::print(5, "Expected Y: %.1f", expectedY);
-    pros::lcd::print(6, "Dist: %dmm Offset: %.0fmm", distFront.get_distance(), OFFSET_FRONT);
-    
-    pros::delay(3000);  // Show results for 3 seconds
-}
+
 
 void rightside(){
     // set position to x:0, y:0, heading:0
@@ -667,48 +526,28 @@ void skills(){
 
 }
 
-// void skills(){
-// 	chassis.setPose(0, 0, 0);
-
-// 	intake.telOP(true, false, false, false, false, false);
-// 	chassis.moveToPose( -15, 34, -21, 2000, {.minSpeed = 50}, false);
-// 	pros::delay(300);
-// 	chassis.turnToHeading(-131, 1000); // fix
-// 	chassis.moveToPose(7, 44, -131, 1600,{.forwards=false}, false);
-// 	intake.telOP(false, false, true, false, false, false);
-// 	pros::delay(400);
-// 	intake.telOP(true, false, false, false, false, false);
-// 	pros::delay(200);
-// 	chassis.moveToPoint(-34, 8, 2000);
-// 	chassis.turnToHeading(180, 1000);
-// 	tongue.set_value(true);
-// 	chassis.moveToPoint(-35, -20, 1600, {.maxSpeed = 40});
-// 	chassis.moveToPoint(-35.5, 30, 1000, {.forwards=false,.maxSpeed = 80}, false);
-// 	intake.telOP(false, true, false, false, false, false);
-// 	pros::delay(2000);
-// 	tongue.set_value(false);
-// 	chassis.moveToPoint(-35.5, 15, 1000, {.minSpeed = 60}, false);
-
-// 	chassis.turnToHeading(-50, 1000);
-// 	chassis.moveToPoint(-50, 30, 3000);
-// 	chassis.turnToHeading(0, 1000);
-// 	chassis.moveToPoint(-50, 95, 2000);
-// 	chassis.turnToHeading(90, 1000);
-// 	chassis.moveToPoint(-35.5, 95, 1000, {}, false);
-// 	chassis.turnToHeading(0, 0, {}, false);
-// 	tongue.set_value(true);
-// 	intake.telOP(true, false, false, false, false, false);
-// 	chassis.moveToPoint(-35.5, 120, 4000, {.maxSpeed = 50}, false);
-
-// 	chassis.moveToPoint(-35.5, 60, 1000, {.forwards = false}, false);
-// 	intake.telOP(false, true, false, false, false, false);
-// }
 
 void autonomous() {
 	chassis.setBrakeMode(pros::E_MOTOR_BRAKE_BRAKE);
 	
-	// resetToDistance(240, false);
-	skills();
+	// Run the selected autonomous route
+	switch (AutonSelector::getSelectedRoute()) {
+		case AutonRoute::SKILLS:
+			skills();
+			break;
+		case AutonRoute::RIGHT_SIDE:
+			rightside();
+			break;
+		case AutonRoute::LEFT_SIDE:
+			leftside();
+			break;
+		case AutonRoute::SOLO_AWP:
+			soloAWP();
+			break;
+		case AutonRoute::DO_NOTHING:
+			// Do nothing - robot stays still
+			break;
+	}
 }
 
 
@@ -724,19 +563,10 @@ void autonomous() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-    pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    // print position to brain screen
-    pros::Task screen_task([&]() {
-        while (true) {
-            // print robot location to the brain screen
-            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            // delay to save resources
-            pros::delay(20);
-        }
-    });
+    
+    // Initialize autonomous route selector UI
+    AutonSelector::init();
 }
 /**
  * Runs while the robot is in the disabled state of Field Management System or
@@ -754,7 +584,10 @@ void disabled() {}
 * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
+void competition_initialize() {
+    // Autonomous selector is already displayed from initialize()
+    // Selection remains visible until autonomous or opcontrol starts
+}
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -795,6 +628,9 @@ void driveTelop(int leftY, int rightX){// 127, -127
 }
 
 void opcontrol() {
+	// Clean up selector UI when entering driver control
+	AutonSelector::destroy();
+	
 	bool doinkerToggle = false;
 	bool tongueToggle = false;
 	bool backdoinkerToggle = false;
