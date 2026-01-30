@@ -296,6 +296,8 @@ void skills(){
 	chassis.moveToPoint(-36.24, 15.12, 1245);
 	chassis.turnToHeading(0, 1000);
 	
+	chassis.turnToHeading(0, 1000);
+	
 	chassis.moveToPoint(-45.6, 47, 1312, {}, false);
 	pros::delay(200);
 	chassis.turnToHeading(260, 1000, {}, false);
@@ -332,6 +334,7 @@ void skills(){
 
 	// chassis.moveToPoint(42.0, 53, 1573); // node 14
 	pros::delay(1000);
+	chassis.setPose(42, 53, chassis.getPose().theta+4.77);
 	chassis.setPose(42, 53, chassis.getPose().theta+4.77);
 
 
@@ -392,6 +395,7 @@ void skills(){
 	// pros::delay(50);
 	// chassis.turnToHeading(144.833564, 883);
 	chassis.moveToPoint(37, -42, 20000, {.maxSpeed = 100}, false); // ode 21
+	chassis.moveToPoint(37, -42, 20000, {.maxSpeed = 100}, false); // ode 21
 
 	pros::delay(200);
 
@@ -443,8 +447,11 @@ void skills(){
 	pros::delay(50);
 	chassis.turnToHeading(270, 884);
 	chassis.moveToPoint(-46, -60, 3500);//node 25
+	chassis.moveToPoint(-46, -60, 3500);//node 25
 	chassis.turnToHeading(0, 461);
 	pros::delay(1000);
+	chassis.moveToPoint(-46, -44, 1237); //node 26
+	
 	chassis.moveToPoint(-46, -44, 1237); //node 26
 	
 
@@ -452,6 +459,8 @@ void skills(){
 	resetToDistance(500, false, 100);
 	pros::delay(1000);
 	chassis.setPose(-45, -47, 0);
+
+
 
 
 
@@ -464,9 +473,13 @@ void skills(){
 	// chassis.setPose(chassis.getPose().x, chassis.getPose().y, 270);
 
 
+	// chassis.setPose(chassis.getPose().x, chassis.getPose().y, 270);
+
+
 	matchload_activate(true);
 	pros::delay(50);
 	chassis.moveToPoint(-68.44, -47, 2000, {.maxSpeed=50}, false); //nodem28 //bottom right matchload
+	pros::delay(3000);
 	pros::delay(3000);
 
 	chassis.moveToPoint(-51.84, -47, 1941, {.forwards = false});//node 29
@@ -482,8 +495,10 @@ void skills(){
 	chassis.moveToPoint(-37.44, -49, 1199); //node 31
 	pros::delay(50);
 	chassis.turnToHeading(320, 906);
+	chassis.turnToHeading(320, 906);
 	chassis.moveToPoint(-64.8, -17.28, 2006); //node 32
 	pros::delay(50);
+	chassis.turnToHeading(0, 834);
 	chassis.turnToHeading(0, 834);
 	chassis.moveToPoint(-64.56, -0.24, 1364); //node 33
 }
