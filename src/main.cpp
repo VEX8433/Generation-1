@@ -216,8 +216,9 @@ void rightside(){
 	tongue.set_value(false);
 	chassis.moveToPoint(36.73, 17, 1000, {.minSpeed = 60}, false);
 	chassis.turnToHeading(130, 1000);
-	chassis.moveToPoint(33, 20)
-	chassis.moveToPoint(33, 35, 3000, {.forwards=false,.maxSpeed = 60}, false);
+	chassis.moveToPoint(28, 22, 1000, {.forwards = false});
+	chassis.turnToHeading(180, 1000);
+	chassis.moveToPoint(28, 45, 3000, {.forwards=false,.maxSpeed = 60}, false);
 }
 
 void leftside(){

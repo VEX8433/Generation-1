@@ -110,7 +110,22 @@ bin/SubSystems/AutonSelector.cpp.o: src/SubSystems/AutonSelector.cpp \
  include/liblvgl/extra/widgets/led/lv_led.h \
  include/liblvgl/extra/widgets/imgbtn/lv_imgbtn.h \
  include/liblvgl/extra/widgets/span/lv_span.h include/pros/rtos.hpp \
- include/pros/rtos.h
+ include/pros/rtos.h include/lemlib/api.hpp include/lemlib/pid.hpp \
+ include/lemlib/pose.hpp include/lemlib/util.hpp \
+ include/lemlib/chassis/chassis.hpp include/pros/imu.hpp \
+ include/pros/device.hpp include/pros/misc.hpp include/pros/misc.h \
+ include/pros/imu.h include/lemlib/asset.hpp \
+ include/lemlib/chassis/trackingWheel.hpp include/pros/motors.hpp \
+ include/pros/abstract_motor.hpp include/pros/motors.h \
+ include/pros/rtos.hpp include/pros/motor_group.hpp \
+ include/pros/colors.hpp include/pros/adi.hpp include/pros/adi.h \
+ include/pros/rotation.hpp include/pros/rotation.h \
+ include/lemlib/exitcondition.hpp include/lemlib/driveCurve.hpp \
+ include/lemlib/logger/logger.hpp include/fmt/core.h include/fmt/format.h \
+ include/fmt/core.h include/fmt/format-inl.h \
+ include/lemlib/logger/baseSink.hpp include/fmt/args.h \
+ include/lemlib/logger/message.hpp include/lemlib/logger/infoSink.hpp \
+ include/lemlib/logger/telemetrySink.hpp
 src/SubSystems/AutonSelector.hpp:
 include/liblvgl/lvgl.h:
 include/liblvgl/misc/lv_log.h:
@@ -269,3 +284,37 @@ include/liblvgl/extra/widgets/imgbtn/lv_imgbtn.h:
 include/liblvgl/extra/widgets/span/lv_span.h:
 include/pros/rtos.hpp:
 include/pros/rtos.h:
+include/lemlib/api.hpp:
+include/lemlib/pid.hpp:
+include/lemlib/pose.hpp:
+include/lemlib/util.hpp:
+include/lemlib/chassis/chassis.hpp:
+include/pros/imu.hpp:
+include/pros/device.hpp:
+include/pros/misc.hpp:
+include/pros/misc.h:
+include/pros/imu.h:
+include/lemlib/asset.hpp:
+include/lemlib/chassis/trackingWheel.hpp:
+include/pros/motors.hpp:
+include/pros/abstract_motor.hpp:
+include/pros/motors.h:
+include/pros/rtos.hpp:
+include/pros/motor_group.hpp:
+include/pros/colors.hpp:
+include/pros/adi.hpp:
+include/pros/adi.h:
+include/pros/rotation.hpp:
+include/pros/rotation.h:
+include/lemlib/exitcondition.hpp:
+include/lemlib/driveCurve.hpp:
+include/lemlib/logger/logger.hpp:
+include/fmt/core.h:
+include/fmt/format.h:
+include/fmt/core.h:
+include/fmt/format-inl.h:
+include/lemlib/logger/baseSink.hpp:
+include/fmt/args.h:
+include/lemlib/logger/message.hpp:
+include/lemlib/logger/infoSink.hpp:
+include/lemlib/logger/telemetrySink.hpp:
