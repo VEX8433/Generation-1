@@ -4,11 +4,7 @@
 #include "SubSystems/AutonSelector.hpp"
 #include "lemlib/api.hpp"
 #include "pros/abstract_motor.hpp"
-#include "SubSystems/Localizer.hpp"
 #include <cstddef>
-
-// #include <future>
-
 
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
@@ -92,9 +88,6 @@ lemlib::Chassis chassis(drivetrain, // drivetrain settings
 					angular_controller, // angular PID settings
 					sensors // odometry sensors
 );
-
-Localizer localizer(chassis, &distFront, &distBack, &distLeft, nullptr);
-
 
 
 Intake intake(left, right, bot, top, doublePark, distFront);
@@ -207,6 +200,7 @@ void  matchload_activate(bool active){
 
 void rightside(){
     // set position to x:0, y:0, heading:0
+	
     chassis.setPose(0, 0, 0);
     // turn to face heading 90 with a very long timeout
 	intake.telOP(true, false, false, false, false, false);  // intake
@@ -288,6 +282,7 @@ void soloAWP(){
 }
 
 void skills(){
+	
 	intake.telOP(true, false, false, false, false, false);
 
 	chassis.setPose(-49.920000, 15.120000, 85.236000);
@@ -507,7 +502,7 @@ void skills(){
 void autonomous() {
 	chassis.setBrakeMode(pros::E_MOTOR_BRAKE_BRAKE);
 	
-	// Run the selected autonomous route
+// Run the selected autonomous route
 	switch (AutonSelector::getSelectedRoute()) {
 		case AutonRoute::SKILLS:
 			skills();
@@ -540,7 +535,7 @@ void autonomous() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-    chassis.calibrate(); // calibrate sensors
+    pros::lcd::initialize(); // initialize brain screen
     
     // Initialize autonomous route selector UI
     AutonSelector::init();

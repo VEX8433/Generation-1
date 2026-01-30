@@ -1,5 +1,9 @@
 #include "AutonSelector.hpp"
 #include "pros/rtos.hpp"
+#include "lemlib/api.hpp"
+
+// Global chassis access
+extern lemlib::Chassis chassis;
 
 // Static member definitions
 AutonRoute AutonSelector::selectedRoute = AutonRoute::SKILLS;
@@ -172,8 +176,20 @@ void AutonSelector::updateSelection() {
 void AutonSelector::onRouteButtonClick(lv_event_t* e) {
     lv_obj_t* btn = lv_event_get_target(e);
     AutonRoute route = (AutonRoute)(intptr_t)lv_obj_get_user_data(btn);
+    
+    // Only calibrate if selection changes or user re-selects same route (confirmation)
+    // We update selection first so UI shows the click
     selectedRoute = route;
     updateSelection();
+    
+    // Force redraw so user sees the button highlight before calibration freezes
+    lv_refr_now(NULL);
+    
+    // Wait 1 second as requested
+    pros::delay(1000);
+    
+    // Calibrate sensors
+    chassis.calibrate();
 }
 
 void AutonSelector::onAllianceToggle(lv_event_t* e) {
