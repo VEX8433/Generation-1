@@ -458,7 +458,7 @@ void skills(){
 	pros::delay(50);
 	chassis.turnToHeading(0, 834);
 	chassis.turnToHeading(0, 834);
-	chassis.moveToPoint(-60, -0.24, 1364); //node 33
+	chassis.moveToPoint(-70, -0.24, 1364); //node 33
 }
 
 
