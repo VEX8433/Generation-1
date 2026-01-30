@@ -289,29 +289,13 @@ void soloAWP(){
 
 void skills(){
 	intake.telOP(true, false, false, false, false, false);
-	chassis.setPose(0, 0, 0);
 
 	chassis.setPose(-49.920000, 15.120000, 85.236000);
 
 	
-
-	chassis.turnToHeading(90.0, 503);
 	chassis.moveToPoint(-36.24, 15.12, 1245);
-	pros::delay(50);
-	chassis.turnToHeading(52.815294, 805);
-	chassis.moveToPoint(-22.32, 25.68, 1379, {.maxSpeed = 60});
-	pros::delay(50);
-	chassis.turnToHeading(312.633752, 1192);
-	chassis.moveToPoint(-7.2, 11.76, 1478, {.forwards = false});
-	pros::delay(1000);
-	middle_goal_score(true);
+	chassis.turnToHeading(0, 1000);
 	
-	
-	// pros::delay(1000);
-
-
-	chassis.turnToHeading(318.868204, 536, {}, false);
-	middle_goal_score(false);
 	chassis.moveToPoint(-45.6, 47, 1312, {}, false);
 	pros::delay(200);
 	chassis.turnToHeading(260, 1000, {}, false);
@@ -344,27 +328,11 @@ void skills(){
 	pros::delay(1000);
 	resetToDistance(440, false, 100);
 
-	
-	
-	
-	
-	
-
 
 
 	// chassis.moveToPoint(42.0, 53, 1573); // node 14
 	pros::delay(1000);
-
-
-	// resetToDistance(450, false);
-	
-
-
-
-	// chassis.waitUntilDone();
-	// pros::delay(3000);
-
-	chassis.setPose(42, 53, 180);
+	chassis.setPose(42, 53, chassis.getPose().theta+4.77);
 
 
 
@@ -402,7 +370,6 @@ void skills(){
 
 
 
-//__________above no change is good
 	chassis.setPose(23, 53, chassis.getPose().theta);
 
 
@@ -424,7 +391,7 @@ void skills(){
 	// chassis.moveToPoint(30.48, -26.16, 2975); //node 20
 	// pros::delay(50);
 	// chassis.turnToHeading(144.833564, 883);
-	chassis.moveToPoint(37, -42, 2000000, {.maxSpeed = 120}, false); // ode 21
+	chassis.moveToPoint(37, -42, 20000, {.maxSpeed = 100}, false); // ode 21
 
 	pros::delay(200);
 
@@ -475,19 +442,18 @@ void skills(){
 	chassis.moveToPoint(33, -60, 1561);//node 24
 	pros::delay(50);
 	chassis.turnToHeading(270, 884);
-	chassis.moveToPoint(-45.36, -63, 2753);//node 25
+	chassis.moveToPoint(-46, -60, 3500);//node 25
 	chassis.turnToHeading(0, 461);
 	pros::delay(1000);
-	chassis.moveToPoint(-46.56, -44, 1237); //node 26
+	chassis.moveToPoint(-46, -44, 1237); //node 26
 	
-
-
-
 
 	pros::delay(1000);
 	resetToDistance(500, false, 100);
 	pros::delay(1000);
 	chassis.setPose(-45, -47, 0);
+
+
 
 	chassis.turnToHeading(270.0, 1112);
 	chassis.moveToPoint(-23, -47, 1500, {.forwards = false}); //node 27
@@ -495,18 +461,18 @@ void skills(){
 	//bottom right score
 	long_goal_score(true);
 	pros::delay(2500);
+	// chassis.setPose(chassis.getPose().x, chassis.getPose().y, 270);
+
+
 	matchload_activate(true);
 	pros::delay(50);
 	chassis.moveToPoint(-68.44, -47, 2000, {.maxSpeed=50}, false); //nodem28 //bottom right matchload
-	pros::delay(300);
-	chassis.moveToPoint(-68.44, -47, 1700, {.maxSpeed=20}, false); 
+	pros::delay(3000);
 
 	chassis.moveToPoint(-51.84, -47, 1941, {.forwards = false});//node 29
 	pros::delay(500);
 	chassis.moveToPoint(-24.96, -47, 1663, {.forwards = false}); //node 30
 	chassis.waitUntil(20.017067);
-
-	//bottom right matchload score
 	matchload_activate(false);
 	long_goal_score(true);
 	pros::delay(2500);
@@ -515,15 +481,11 @@ void skills(){
 	chassis.turnToHeading(268.898294, 461);
 	chassis.moveToPoint(-37.44, -49, 1199); //node 31
 	pros::delay(50);
-	chassis.turnToHeading(319.820766, 906);
+	chassis.turnToHeading(320, 906);
 	chassis.moveToPoint(-64.8, -17.28, 2006); //node 32
 	pros::delay(50);
-	chassis.turnToHeading(0.806929, 834);
+	chassis.turnToHeading(0, 834);
 	chassis.moveToPoint(-64.56, -0.24, 1364); //node 33
-
-	// Estimated total time: 63.92 s
-
-
 }
 
 
