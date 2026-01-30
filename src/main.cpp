@@ -71,7 +71,7 @@ lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
 											100, // small error range timeout, in milliseconds
 											2, // large error range, in inches
 											500, // large error range timeout, in milliseconds
-											30 // maximum acceleration (slew)
+											10 // maximum acceleration (slew)
 );
 
 // angular PID controller
@@ -430,29 +430,13 @@ void soloAWP(){
 
 void skills(){
 	intake.telOP(true, false, false, false, false, false);
-	chassis.setPose(0, 0, 0);
 
 	chassis.setPose(-49.920000, 15.120000, 85.236000);
 
 	
-
-	chassis.turnToHeading(90.0, 503);
 	chassis.moveToPoint(-36.24, 15.12, 1245);
-	pros::delay(50);
-	chassis.turnToHeading(52.815294, 805);
-	chassis.moveToPoint(-22.32, 25.68, 1379, {.maxSpeed = 60});
-	pros::delay(50);
-	chassis.turnToHeading(312.633752, 1192);
-	chassis.moveToPoint(-7.2, 11.76, 1478, {.forwards = false});
-	pros::delay(1000);
-	middle_goal_score(true);
+	chassis.turnToHeading(0, 1000);
 	
-	
-	// pros::delay(1000);
-
-
-	chassis.turnToHeading(318.868204, 536, {}, false);
-	middle_goal_score(false);
 	chassis.moveToPoint(-45.6, 47, 1312, {}, false);
 	pros::delay(200);
 	chassis.turnToHeading(260, 1000, {}, false);
@@ -565,7 +549,7 @@ void skills(){
 	// chassis.moveToPoint(30.48, -26.16, 2975); //node 20
 	// pros::delay(50);
 	// chassis.turnToHeading(144.833564, 883);
-	chassis.moveToPoint(37, -42, 2000000, {.maxSpeed = 120}, false); // ode 21
+	chassis.moveToPoint(37, -42, 20000, {.maxSpeed = 100}, false); // ode 21
 
 	pros::delay(200);
 
@@ -616,7 +600,7 @@ void skills(){
 	chassis.moveToPoint(33, -60, 1561);//node 24
 	pros::delay(50);
 	chassis.turnToHeading(270, 884);
-	chassis.moveToPoint(-45.36, -63, 2753);//node 25
+	chassis.moveToPoint(-45.36, -60, 2753);//node 25
 	chassis.turnToHeading(0, 461);
 	pros::delay(1000);
 	chassis.moveToPoint(-46.56, -44, 1237); //node 26
