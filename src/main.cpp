@@ -429,138 +429,131 @@ void soloAWP(){
 }
 
 void skills(){
-// 	// intake.telOP(true, false, false, false, false, false);
-// 	chassis.setPose(0, 0, 0);
+	intake.telOP(true, false, false, false, false, false);
+	chassis.setPose(0, 0, 0);
 
-// 	chassis.setPose(-49.920000, 15.120000, 85.236000);
-
-	
-
-// 	chassis.turnToHeading(90.0, 503);
-// 	chassis.moveToPoint(-36.24, 15.12, 1245);
-// 	pros::delay(50);
-// 	chassis.turnToHeading(52.815294, 805);
-// 	chassis.moveToPoint(-22.32, 25.68, 1379);
-// 	pros::delay(50);
-// 	chassis.turnToHeading(312.633752, 1192);
-// 	chassis.moveToPoint(-7.2, 11.76, 1478, {.forwards = false});
-// 	pros::delay(1000);
-// 	middle_goal_score(true);
-	
-	
-// 	// pros::delay(1000);
-
-
-// 	chassis.turnToHeading(318.868204, 536);
-// 	chassis.moveToPoint(-38.64, 47.76, 2141); // node 4
-// 	chassis.waitUntil(11.144602);
-// 	middle_goal_score(false);
-// 	chassis.waitUntilDone();
-// 	pros::delay(200);
-// 	chassis.turnToHeading(258.310631, 969);
-// 	chassis.moveToPoint(-45.6, 46.32, 1012);
-// 	chassis.waitUntil(0.481858);
-
-
-// 	matchload_activate(true);
-// 	chassis.waitUntilDone();
-// 	pros::delay(300);
-// 	chassis.turnToHeading(270, 646);
-// 	chassis.moveToPoint(-74.32, 46.32, 3420, {.maxSpeed=50}, false); //node 6
-
-// 	// pros::delay(2000);
-// 	chassis.moveToPoint(-45.12, 46.32, 1436, {.forwards = false}); //node 7	
-// 	chassis.waitUntil(14.629714);
-// 	matchload_activate(false);
-
-
-// 	intake.telOP(true, false, false, false, false, false);
-// 	chassis.waitUntilDone();
-// 	pros::delay(200);
-// 	chassis.turnToHeading(24.034288, 1258);
-// 	chassis.moveToPoint(-37.2, 64.08, 1443); //node 8
-// 	// pros::delay(50);
-// 	// chassis.turnToHeading(88.174458, 991);
-// 	// chassis.moveToPoint(-19.922253, 64.630685, 1373);
-// 	// pros::delay(50);
-// 	// chassis.moveToPoint(-3.843288, 65.143162, 1332); 	
-// 	// pros::delay(50);
-// 	// chassis.moveToPoint(10.100794, 65.587595, 1255);
-// 	// pros::delay(50);
-// 	// chassis.moveToPoint(23.04, 66.0, 1217);
-// 	// pros::delay(50);
-// 	chassis.turnToHeading(91.487868, 465);
-// 	chassis.moveToPoint(42, 70.52, 2000, {.maxSpeed=100}); //node 13
+	chassis.setPose(-49.920000, 15.120000, 85.236000);
 
 	
 
-// 	pros::delay(2000);
-// 	chassis.turnToHeading(173, 1116, {.maxSpeed=100});
-// 	pros::delay(1000);
-// 	resetToDistance(450, false, 100);
-
+	chassis.turnToHeading(90.0, 503);
+	chassis.moveToPoint(-36.24, 15.12, 1245);
+	pros::delay(50);
+	chassis.turnToHeading(52.815294, 805);
+	chassis.moveToPoint(-22.32, 25.68, 1379);
+	pros::delay(50);
+	chassis.turnToHeading(312.633752, 1192);
+	chassis.moveToPoint(-7.2, 11.76, 1478, {.forwards = false});
+	pros::delay(1000);
+	middle_goal_score(true);
 	
 	
-	
-	
-	
+	// pros::delay(1000);
 
 
-
-// 	// chassis.moveToPoint(42.0, 53, 1573); // node 14
-// 	pros::delay(1000);
-
-
-// 	// resetToDistance(450, false);
-	
+	chassis.turnToHeading(318.868204, 536, {}, false);
+	middle_goal_score(false);
+	chassis.moveToPoint(-45.6, 47, 1312, {}, false);
+	pros::delay(200);
+	chassis.turnToHeading(265, 1000, {}, false);
 
 
+	matchload_activate(true);
+	chassis.moveToPoint(-74.32, 46.5, 1000, {.maxSpeed=50}, false); //node 6
+	pros::delay(300);
+	chassis.moveToPoint(-74.32, 46.5, 1000, {.maxSpeed=20}, false); //node 6
 
-// 	// chassis.waitUntilDone();
-// 	// pros::delay(3000);
-
-// 	chassis.setPose(42, 53, 180);
-
-
-
-
-
-// 	pros::delay(50);
-// 	chassis.turnToHeading(90, 1120);
-
-
-
-
-
-
-	// chassis.moveToPoint(23, 53, 1000, {.forwards = false, .maxSpeed=100}, false); //node 15
-	// long_goal_score(true);
-	// pros::delay(2500); 
-	// chassis.waitUntil(11.940754);
-
-
-	// // initial match, top left score
-	
-	// chassis.turnToHeading(90, 461); //prev89
-	// chassis.moveToPoint(47.76, 53, 1518, {.maxSpeed=100}); //prey56 //node 16?? ///current 48
-	// chassis.waitUntil(16.507699);
-
-
-	// //top left matchload
-	// matchload_activate(true);
-	// chassis.waitUntilDone();
-	// pros::delay(500);
-	// chassis.turnToHeading(87, 461);
-	// chassis.moveToPoint(65.52, 53, 3389, {.maxSpeed = 60}); //prev 5 //node 17
 	// pros::delay(2000);
-	// chassis.turnToHeading(90.0, 461);
-	// chassis.moveToPoint(23, 53, 1500, {.forwards = false, .maxSpeed=100}, false); //node 18 //scoring on long goal
-	// chassis.waitUntil(32.81013);
+	chassis.moveToPoint(-45.12, 47, 1436, {.forwards = false}); //node 7	
+	chassis.waitUntil(14.629714);
+	matchload_activate(false);
+
+
+	intake.telOP(true, false, false, false, false, false);
+	chassis.waitUntilDone();
+	pros::delay(200);
+	chassis.turnToHeading(24.034288, 1258);
+	chassis.moveToPoint(-37.2, 64.08, 1443); //node 8
+	// pros::delay(50);
+	// chassis.turnToHeading(88.174458, 991);
+	// chassis.moveToPoint(-19.922253, 64.630685, 1373);
+	// pros::delay(50); b
+	// chassis.moveToPoint(-3.843288, 65.143162, 1332); 	
+	// pros::delay(50);
+	// chassis.moveToPoint(10.100794, 65.587595, 1255);
+	// pros::delay(50);
+	// chassis.moveToPoint(23.04, 66.0, 1217);
+	// pros::delay(50);
+	chassis.turnToHeading(91.487868, 465);
+	chassis.moveToPoint(42, 70.52, 2000, {.maxSpeed=100}); //node 13
+
+	
+
+	pros::delay(2000);
+	chassis.turnToHeading(173, 1116, {.maxSpeed=100});
+	pros::delay(1000);
+	resetToDistance(440, false, 100);
+
+	
+	
+	
+	
+	
+
+
+
+	// chassis.moveToPoint(42.0, 53, 1573); // node 14
+	pros::delay(1000);
+
+
+	// resetToDistance(450, false);
+	
+
+
+
+	// chassis.waitUntilDone();
+	// pros::delay(3000);
+
+	chassis.setPose(42, 53, 180);
+
+
+
+
+
+	pros::delay(50);
+	chassis.turnToHeading(90, 1120);
+
+
+
+
+
+
+	chassis.moveToPoint(23, 53, 1000, {.forwards = false, .maxSpeed=100}, false); //node 15
+	long_goal_score(true);
+	pros::delay(2500); 
+	chassis.waitUntil(11.940754);
+
+
+	// initial match, top left score
+	
+	chassis.turnToHeading(90, 461, {}, false); //prev89
+	matchload_activate(true);
+	chassis.moveToPoint(47.76, 53, 1518, {.maxSpeed=100}, false); //prey56 //node 16?? ///current 48
+	chassis.turnToHeading(93, 500);
+
+	//top left matchload
+	chassis.moveToPoint(65.52, 52, 1000, {.maxSpeed = 50}, false); //prev 5 //node 17
+	pros::delay(300);
+	chassis.moveToPoint(65.52, 52, 1700, {.maxSpeed = 20}, false); //prev 5 //node 17
+
+	chassis.turnToHeading(90.0, 461);
+	chassis.moveToPoint(23, 53, 1500, {.forwards = false, .maxSpeed=100}, false); //node 18 //scoring on long goal
+	chassis.waitUntil(32.81013);
 
 
 
 //__________above no change is good
-	chassis.setPose(23, 53, 90);
+	chassis.setPose(23, 53, chassis.getPose().theta);
 
 
 	//top left 2nd matchload score		
@@ -571,7 +564,7 @@ void skills(){
 
 
 	pros::delay(2500);
-	chassis.moveToPoint(40, 53, 1539, {.maxSpeed=110}); //node 19
+	chassis.moveToPoint(37, 53, 1539, {.maxSpeed=110}); //node 19
 
 	chassis.turnToHeading(180, 1204);
 	// LOCALIZATION RESET: Near left wall (X = -72), reset X coordinate
@@ -581,41 +574,9 @@ void skills(){
 	// chassis.moveToPoint(30.48, -26.16, 2975); //node 20
 	// pros::delay(50);
 	// chassis.turnToHeading(144.833564, 883);
-	chassis.moveToPoint(40, -42, 2000000, {.maxSpeed = 120}, false); // ode 21
+	chassis.moveToPoint(37, -42, 2000000, {.maxSpeed = 120}, false); // ode 21
 
 	pros::delay(200);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -644,36 +605,11 @@ void skills(){
 	matchload_activate(true);
 	pros::delay(400);
 
-	chassis.moveToPoint(65, -45, 2000, {.maxSpeed=40}, false); //node 22 // THIS IS THE MATCHLOAD POSITION
+	chassis.moveToPoint(65, -45, 1300, {.maxSpeed=50}, false); //node 22 // THIS IS THE MATCHLOAD POSITION
+	pros::delay(300);
+	chassis.moveToPoint(65, -45, 1700, {.maxSpeed=20}, false); 
 
 	// chassis.waitUntilDone();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	pros::delay(2000);
 	// chassis.turnToHeading(90, 461);
 	// chassis.moveToPoint(44.88, -53, 3727, {.forwards = false}); //node 23
 	chassis.moveToPoint(40, -45, 2000, {.forwards = false, .maxSpeed = 80}); // ode 21 NEW NODE 23
@@ -711,10 +647,10 @@ void skills(){
 	pros::delay(2500);
 	matchload_activate(true);
 	pros::delay(50);
-	chassis.moveToPoint(-68.44, -47, 3870, {.maxSpeed=50}); //nodem28 //bottom right matchload
+	chassis.moveToPoint(-68.44, -47, 2000, {.maxSpeed=50}, false); //nodem28 //bottom right matchload
+	pros::delay(300);
+	chassis.moveToPoint(-68.44, -47, 1700, {.maxSpeed=20}, false); 
 
-	chassis.waitUntilDone();
-	pros::delay(2000);
 	chassis.moveToPoint(-51.84, -47, 1941, {.forwards = false});//node 29
 	pros::delay(500);
 	chassis.moveToPoint(-24.96, -47, 1663, {.forwards = false}); //node 30
