@@ -1,18 +1,20 @@
 #pragma once
 
 #include "api.h"
+#include "pros/optical.hpp"
 
 class Intake{
   public:
-    Intake(pros::Motor LEFT, pros::Motor RIGHT, pros::adi::DigitalOut BOT, pros::adi::DigitalOut TOP, pros::adi::DigitalOut DOUBLEPARK, pros::Distance DISTANCE);
+    Intake(pros::Motor TOP, pros::Motor BOT, pros::adi::DigitalOut HOOD, pros::adi::DigitalOut MIDMECH, pros::adi::DigitalOut INTAKERAISE, pros::Distance DISTANCE, pros::Distance DISTANCE2);
 
-    void telOP(bool intake, bool scoreTop, bool scoreMid, bool outtake, bool park, bool prime);
+    void telOP(bool intake, bool scoreTop, bool scoreMid, bool scoreBot, bool outtake);
 
   private:
-    pros::Motor left;
-    pros::Motor right;
+    pros::Motor top;
+    pros::Motor bot;
     pros::Distance distance;
-    pros::adi::DigitalOut bot;
-    pros::adi::DigitalOut top;
-    pros::adi::DigitalOut doublepark;
+    pros::Distance distance2;
+    pros::adi::DigitalOut hood;
+    pros::adi::DigitalOut midmech;
+    pros::adi::DigitalOut intakeraise;
 };

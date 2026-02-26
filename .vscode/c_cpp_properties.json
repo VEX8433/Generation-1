@@ -5,14 +5,16 @@
       "includePath": [
         "${workspaceFolder}/**",
         "/Users/kennyshi/Desktop/Computer/PROS/2026PushBack/Generation-1/include",
-        "c:\\Users\\Rohan\\Desktop\\vex_pushback\\Generation-1\\include"
+        "c:\\Users\\Rohan\\Desktop\\vex_pushback\\Generation-1\\include",
+        "/Users/kennyshi/Desktop/Computer/PROS/2026PushBack/Generation-1 copy/include",
+        "/Users/kennyshi/Desktop/Computer/PROS/2026PushBack/Gen 2/include"
       ],
       "defines": [
         "_DEBUG",
         "UNICODE",
         "_UNICODE"
       ],
-      "compilerPath": "c:\\Users\\Rohan\\AppData\\Roaming\\Antigravity\\User\\globalStorage\\sigbots.pros\\install\\pros-toolchain-windows\\usr\\bin\\arm-none-eabi-g++",
+      "compilerPath": "/Users/kennyshi/Library/Application Support/Code/User/globalStorage/sigbots.pros/install/pros-toolchain-macos/bin/arm-none-eabi-g++",
       "cStandard": "gnu11",
       "cppStandard": "gnu++20",
       "intelliSenseMode": "gcc-arm",
@@ -21,7 +23,7 @@
       ],
       "browse": {
         "path": [
-          "c:\\Users\\Rohan\\Desktop\\vex_pushback\\Generation-1"
+          "/Users/kennyshi/Desktop/Computer/PROS/2026PushBack/Gen 2"
         ],
         "limitSymbolsToIncludedHeaders": true,
         "databaseFilename": ""
